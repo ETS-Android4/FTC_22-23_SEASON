@@ -84,8 +84,8 @@ public class AutoBoi extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-
-
+        Drive(.7f);
+        Arm(.7f);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -94,10 +94,17 @@ public class AutoBoi extends LinearOpMode {
         }
     }
 
-    public void Drive(){
-        dylan.setPower(.7);
-        jerry.setPower(.7);
-        bob.setPower(.7);
-        larry.setPower(.7);
+    public void Drive(float powa){
+        dylan.setPower(powa);
+        jerry.setPower(powa);
+        bob.setPower(powa);
+        larry.setPower(powa);
+    }
+    public void Arm(float armpower){
+        barry.setPower(armpower);
+    }
+    public void ClawFunction(){
+        garry.setPosition();
     }
 }
+
