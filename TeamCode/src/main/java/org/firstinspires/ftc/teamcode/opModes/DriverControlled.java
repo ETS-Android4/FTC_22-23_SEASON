@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,18 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+@TeleOp(name = "GudCode", group = "opModes")
 
-import java.util.List;
-
-@TeleOp(name = "GudCode", group = "Stuff")
-
-public class GudCode extends LinearOpMode {
-    private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
-    private static final String LABEL_FIRST_ELEMENT = "Quad";
-    private static final String LABEL_SECOND_ELEMENT = "Single";
+public class DriverControlled extends LinearOpMode {
 
     // Chassis motors
     private DcMotorEx bob;
@@ -35,9 +26,8 @@ public class GudCode extends LinearOpMode {
     private double rightJoy_y;
     private double leftJoy_x;
     private double rightJoy_x;
-    private double deadzone;
+    private double deadzone = 0.01;
     private boolean y_flag;
-    private boolean x_flag;
 
     private enum ClawPosition
     {
@@ -94,7 +84,7 @@ public class GudCode extends LinearOpMode {
 
             if (JoyIsActive("left"))
             {
-                TurnPlaces(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
+                TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
                 telemetry.addData("Turny things", 0);
             }
             else if (JoyIsActive("right"))
@@ -211,6 +201,38 @@ public class GudCode extends LinearOpMode {
         }
     }
 
+    private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
+    {
+        if (Joy_x > 0 && Joy_y > 0)
+        {
+            dylan.setPower(0);
+            jerry.setPower(0);
+            bob.setPower(speed);
+            larry.setPower(speed);
+        }
+        else if (Joy_x > 0 && Joy_y < 0)
+        {
+            dylan.setPower(0);
+            jerry.setPower(0);
+            bob.setPower(-speed);
+            larry.setPower(-speed);
+        }
+        else if (Joy_x < 0 && Joy_y > 0)
+        {
+            dylan.setPower(speed);
+            jerry.setPower(speed);
+            bob.setPower(0);
+            larry.setPower(0);
+        }
+        else if (Joy_x < 0 && Joy_y < 0)
+        {
+            dylan.setPower(-speed);
+            jerry.setPower(-speed);
+            bob.setPower(0);
+            larry.setPower(0);
+        }
+    }
+
     private void TurnPlaces (double leftJoy_x, double leftJoy_y, double speed)
     {
         if (leftJoy_y < 0)
@@ -244,39 +266,39 @@ public class GudCode extends LinearOpMode {
 
     }
 
-    private String calculatedDirection (double rightJoy_x, double rightJoy_y)
+    private String calculatedDirection (double Joy_x, double Joy_y)
     {
         String directionToTravel;
 
-        if (rightJoy_x > Math.cos(1.96) && rightJoy_x < Math.cos(1.18) && rightJoy_y > 0)
+        if (Joy_x > Math.cos(1.96) && Joy_x < Math.cos(1.18) && Joy_y > 0)
         {
             directionToTravel = "FORWARD"; // Forwards direction
         }
-        else if (rightJoy_x > Math.cos(1.18) && rightJoy_x < Math.cos(0.393)  && rightJoy_y > 0)
+        else if (Joy_x > Math.cos(1.18) && Joy_x < Math.cos(0.393)  && Joy_y > 0)
         {
             directionToTravel = "FORWARD/RIGHT"; // Forward/right direction
         }
-        else if (rightJoy_x > 0 && rightJoy_y > Math.sin(-0.393) && rightJoy_y < Math.sin(0.393))
+        else if (Joy_x > 0 && Joy_y > Math.sin(-0.393) && Joy_y < Math.sin(0.393))
         {
             directionToTravel = "RIGHT"; // Right direction
         }
-        else if (rightJoy_x > Math.cos(1.18) && rightJoy_x < Math.cos(0.393)  && rightJoy_y < 0)
+        else if (Joy_x > Math.cos(1.18) && Joy_x < Math.cos(0.393)  && Joy_y < 0)
         {
             directionToTravel = "BACKWARD/RIGHT"; // Backward/right direction
         }
-        else if (rightJoy_x > Math.cos(1.96) && rightJoy_x < Math.cos(1.18) && rightJoy_y < 0)
+        else if (Joy_x > Math.cos(1.96) && Joy_x < Math.cos(1.18) && Joy_y < 0)
         {
             directionToTravel = "BACKWARD"; // Backwards direction
         }
-        else if (rightJoy_x < Math.cos(1.96) && rightJoy_x > Math.cos(2.75) && rightJoy_y < 0)
+        else if (Joy_x < Math.cos(1.96) && Joy_x > Math.cos(2.75) && Joy_y < 0)
         {
             directionToTravel = "BACKWARD/LEFT"; // Backward/left direction
         }
-        else if (rightJoy_x < 0 && rightJoy_y > Math.sin(-0.393) && rightJoy_y < Math.sin(0.393))
+        else if (Joy_x < 0 && Joy_y > Math.sin(-0.393) && Joy_y < Math.sin(0.393))
         {
             directionToTravel = "LEFT"; // Left direction
         }
-        else if (rightJoy_x < Math.cos(1.96) && rightJoy_x > Math.cos(2.75) && rightJoy_y > 0)
+        else if (Joy_x < Math.cos(1.96) && Joy_x > Math.cos(2.75) && Joy_y > 0)
         {
             directionToTravel = "FORWARD/LEFT"; // Forward/left direction
         }

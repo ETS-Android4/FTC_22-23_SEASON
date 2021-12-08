@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,14 +8,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="Basic: Linear OpMode", group="Linear Opmode")
+import org.firstinspires.ftc.teamcode.res.ArmPositions;
 
-public class AutoBoi extends LinearOpMode {
+@TeleOp(name="AutoBoi", group="opModes")
+
+public class Autonomous extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-
-    private ClawPositions position = ClawPositions.START;
 
     // Chassis motors
     private DcMotorEx bob;
@@ -53,7 +53,6 @@ public class AutoBoi extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        Drive(.7f);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -61,14 +60,7 @@ public class AutoBoi extends LinearOpMode {
             telemetry.update();
         }
     }
-
-    public void Drive(float powa){
-        dylan.setPower(powa);
-        jerry.setPower(powa);
-        bob.setPower(powa);
-        larry.setPower(powa);
-    }
-    private void Arm(ClawPositions positionToMove) {
+    private void Arm(ArmPositions positionToMove) {
         switch (positionToMove) {
             case START:
                 garry.setPosition(0);
