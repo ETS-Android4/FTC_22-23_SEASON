@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.res.ArmPositions;
+import org.firstinspires.ftc.teamcode.res.ClawPositions;
+
 @TeleOp(name = "GudCode", group = "opModes")
 
 public class DriverControlled extends LinearOpMode {
@@ -20,6 +23,7 @@ public class DriverControlled extends LinearOpMode {
     // Arm motors/servos
     private DcMotorEx barry;
     private Servo garry;
+    private Servo sherry;
 
     // Other stuff
     private double leftJoy_y;
@@ -27,14 +31,11 @@ public class DriverControlled extends LinearOpMode {
     private double leftJoy_x;
     private double rightJoy_x;
     private double deadzone = 0.01;
-    private boolean y_flag;
+    private boolean arm_flag;
+    private boolean claw_flag;
 
-    private enum ClawPosition
-    {
-        UP, DOWN, START
-    }
-
-    ClawPosition currentPosition = ClawPosition.START;
+    private int armCurrentPosition = 0;
+    private int clawCurrentPosition = 0;
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -49,6 +50,7 @@ public class DriverControlled extends LinearOpMode {
         jerry = hardwareMap.get(DcMotorEx.class, "back_right_motor");
         barry = hardwareMap.get(DcMotorEx.class, "swing_arm_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
+        sherry = hardwareMap.get(Servo.class, "claw_servo");
 
         // Wait for the game to begin
         telemetry.addData(">", "Press Play to start op mode");
@@ -100,33 +102,36 @@ public class DriverControlled extends LinearOpMode {
                 larry.setPower(0);
             }
 
-
-            if (this.gamepad1.y && y_flag)
+            if (this.gamepad1.dpad_right && arm_flag)
             {
-                MoveClaw(currentPosition);
-                if (currentPosition == ClawPosition.START)
-                {
-                    currentPosition = ClawPosition.DOWN;
-                }
-                else if (currentPosition == ClawPosition.DOWN)
-                {
-                    currentPosition = ClawPosition.UP;
-                }
-                else if (currentPosition == ClawPosition.UP)
-                {
-                    currentPosition = ClawPosition.DOWN;
-                }
-
-                y_flag = false;
+                armCurrentPosition += 1;
+                arm_flag = true;
+                if (armCurrentPosition > 5) {armCurrentPosition = 5;}
+            }
+            else if (this.gamepad1.dpad_left && arm_flag)
+            {
+                armCurrentPosition -= 1;
+                arm_flag = true;
+                if (armCurrentPosition < 0) {armCurrentPosition = 0;}
             }
 
-            else if (!this.gamepad1.y && !y_flag)
-            {
-                y_flag = true;
-            }
-            telemetry.addData("Claw position", currentPosition);
+            MoveArm(armCurrentPosition);
 
-            telemetry.update();
+            if (!this.gamepad1.dpad_up && !this.gamepad1.dpad_down && !arm_flag)
+            {
+                arm_flag = false;
+            }
+
+            while (this.gamepad1.dpad_up)
+            {
+                clawCurrentPosition += 1;
+            }
+            while (this.gamepad1.dpad_down)
+            {
+                clawCurrentPosition -= 1;
+            }
+
+            MoveClaw(clawCurrentPosition);
         }
 
     }
@@ -376,41 +381,33 @@ public class DriverControlled extends LinearOpMode {
         return isActive;
     }
 
-    private void MoveClaw (Enum position)
+    private void MoveClaw (int position)
     {
-        // Code to move claw to placement position
-        if (position == ClawPosition.START)
-        {
-            // put in an actual target position
-            barry.setTargetPosition(0);
-            barry.setPower(0);
+        garry.setPosition(position);
+    }
 
-            // Move the things
-            barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //garry.setPosition(0.25);
+    private void MoveArm(int positionToMove) {
+        switch (positionToMove) {
+            case 0:
+                barry.setTargetPosition(0);
+                break;
+            case 1:
+                barry.setTargetPosition(100); //Something thats not 0
+                break;
+            case 2:
+                barry.setTargetPosition(200); //Something thats not 0
+                break;
+            case 3:
+                barry.setTargetPosition(300); //Something thats not 0
+                break;
+            case 4:
+                barry.setTargetPosition(400); //Something thats not 0
+                break;
+            case 5:
+                barry.setTargetPosition(500); //Something thats not 0
+                break;
         }
 
-        // Code move claw to pickup position
-        else if (position == ClawPosition.DOWN)
-        {
-            // put in an actual target position
-            barry.setTargetPosition(1800);
-            barry.setPower(0.5);
-
-            // Move the things
-            barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //garry.setPosition(0.5);
-        }
-
-        else if (position == ClawPosition.UP)
-        {
-            // put in an actual target position
-            barry.setTargetPosition(1000);
-            barry.setPower(0.5);
-
-            // Move the things
-            barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //garry.setPosition(0.25);
-        }
+        barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
