@@ -31,7 +31,7 @@ public class DriverControlled extends LinearOpMode {
     private double leftJoy_x;
     private double rightJoy_x;
     private double deadzone = 0.01;
-    private boolean arm_flag;
+    private boolean arm_flag = true;
     private boolean claw_flag;
 
     private int armCurrentPosition = 0;
@@ -125,15 +125,14 @@ public class DriverControlled extends LinearOpMode {
             while (this.gamepad1.dpad_up)
             {
                 clawCurrentPosition += 1;
+                MoveClaw(clawCurrentPosition);
             }
             while (this.gamepad1.dpad_down)
             {
                 clawCurrentPosition -= 1;
+                MoveClaw(clawCurrentPosition);
             }
-
-            MoveClaw(clawCurrentPosition);
         }
-
     }
 
     private void DrivePlaces (String direction, double speed)
