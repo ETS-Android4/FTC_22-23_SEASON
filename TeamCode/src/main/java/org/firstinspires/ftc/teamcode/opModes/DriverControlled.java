@@ -204,36 +204,36 @@ public class DriverControlled extends LinearOpMode {
         }
     }
 
-    private void TurnPlaces (double leftJoy_x, double leftJoy_y, double speed)
-    {
-        if (leftJoy_y < 0)
-        {
-            speed = -speed;
-        }
-
-        if(leftJoy_x > 0)
-        {
-            dylan.setPower(speed * Math.abs(leftJoy_x / 2));
-            jerry.setPower(speed * Math.abs(leftJoy_x / 2));
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-        else if(leftJoy_x < 0)
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(speed * Math.abs(leftJoy_x / 2));
-            larry.setPower(speed * Math.abs(leftJoy_x / 2));
-        }
-        else
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-
-    }
+//    private void TurnPlaces (double leftJoy_x, double leftJoy_y, double speed)
+//    {
+//        if (leftJoy_y < 0)
+//        {
+//            speed = -speed;
+//        }
+//
+//        if(leftJoy_x > 0)
+//        {
+//            dylan.setPower(speed * Math.abs(leftJoy_x / 2));
+//            jerry.setPower(speed * Math.abs(leftJoy_x / 2));
+//            bob.setPower(speed);
+//            larry.setPower(speed);
+//        }
+//        else if(leftJoy_x < 0)
+//        {
+//            dylan.setPower(speed);
+//            jerry.setPower(speed);
+//            bob.setPower(speed * Math.abs(leftJoy_x / 2));
+//            larry.setPower(speed * Math.abs(leftJoy_x / 2));
+//        }
+//        else
+//        {
+//            dylan.setPower(speed);
+//            jerry.setPower(speed);
+//            bob.setPower(speed);
+//            larry.setPower(speed);
+//        }
+//
+//    }
 
     private String calculatedDirection (double Joy_x, double Joy_y)
     {
