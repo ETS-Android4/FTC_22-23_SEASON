@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.res.ArmPositions;
-import org.firstinspires.ftc.teamcode.res.ClawPositions;
 
 @TeleOp(name = "GudCode", group = "opModes")
 
@@ -31,11 +29,8 @@ public class DriverControlled extends LinearOpMode {
     private double leftJoy_x;
     private double rightJoy_x;
     private double deadzone = 0.01;
-    private boolean arm_flag = true;
-    private boolean claw_flag;
 
-    private int armCurrentPosition = 0;
-    private int clawCurrentPosition = 0;
+    private double clawCurrentPosition = 0.5;
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -56,17 +51,14 @@ public class DriverControlled extends LinearOpMode {
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
 
-        dylan.setDirection((DcMotorSimple.Direction.REVERSE));
-        jerry.setDirection(DcMotorSimple.Direction.REVERSE);
-        bob.setDirection(DcMotorSimple.Direction.FORWARD);
-        larry.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dylan.setDirection((DcMotorSimple.Direction.FORWARD));
+        jerry.setDirection(DcMotorSimple.Direction.FORWARD);
+        bob.setDirection(DcMotorSimple.Direction.REVERSE);
+        larry.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
-        while (opModeIsActive())
-        {
+        while (opModeIsActive()) {
             double rx = this.gamepad1.right_stick_x;
             double ry = -this.gamepad1.right_stick_y;
             double lx = this.gamepad1.left_stick_x;
@@ -84,54 +76,29 @@ public class DriverControlled extends LinearOpMode {
             telemetry.addData("Left stick X", leftJoy_x);
             telemetry.addData("Left stick Y", leftJoy_y);
 
-            if (JoyIsActive("left"))
-            {
+            if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
                 telemetry.addData("Turny things", 0);
-            }
-            else if (JoyIsActive("right"))
-            {
+            } else if (JoyIsActive("right")) {
                 DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), calculatedSpeed("right"));
                 telemetry.addData("Drivy things", 0);
-            }
-            else
-            {
+            } else {
                 dylan.setPower(0);
                 jerry.setPower(0);
                 bob.setPower(0);
                 larry.setPower(0);
             }
 
-            if (this.gamepad1.dpad_right && arm_flag)
+            if (this.gamepad1.dpad_right || this.gamepad1.dpad_left) {MoveClaw();}
+
+            MoveArm();
+
+            if (this.gamepad1.y)
             {
-                armCurrentPosition += 1;
-                arm_flag = true;
-                if (armCurrentPosition > 5) {armCurrentPosition = 5;}
-            }
-            else if (this.gamepad1.dpad_left && arm_flag)
-            {
-                armCurrentPosition -= 1;
-                arm_flag = true;
-                if (armCurrentPosition < 0) {armCurrentPosition = 0;}
+                ReInit();
             }
 
-            MoveArm(armCurrentPosition);
-
-            if (!this.gamepad1.dpad_up && !this.gamepad1.dpad_down && !arm_flag)
-            {
-                arm_flag = false;
-            }
-
-            while (this.gamepad1.dpad_up)
-            {
-                clawCurrentPosition += 1;
-                MoveClaw(clawCurrentPosition);
-            }
-            while (this.gamepad1.dpad_down)
-            {
-                clawCurrentPosition -= 1;
-                MoveClaw(clawCurrentPosition);
-            }
+            telemetry.update();
         }
     }
 
@@ -244,8 +211,6 @@ public class DriverControlled extends LinearOpMode {
             speed = -speed;
         }
 
-        telemetry.addData("It should be turning", leftJoy_x);
-
         if(leftJoy_x > 0)
         {
             dylan.setPower(speed * Math.abs(leftJoy_x / 2));
@@ -310,8 +275,6 @@ public class DriverControlled extends LinearOpMode {
         {
             directionToTravel = "STOP";
         }
-
-        telemetry.addData("Check Direction: ", directionToTravel);
 
         return directionToTravel;
     }
@@ -380,33 +343,56 @@ public class DriverControlled extends LinearOpMode {
         return isActive;
     }
 
-    private void MoveClaw (int position)
+    private void MoveClaw ()
     {
-        garry.setPosition(position);
+        if (this.gamepad1.dpad_left)
+        {
+            if (clawCurrentPosition > 1) {clawCurrentPosition = 1;}
+            else
+            {
+                clawCurrentPosition += 0.0075;
+                sherry.setPosition(clawCurrentPosition);
+            }
+        }
+        else if (this.gamepad1.dpad_right)
+        {
+            if (clawCurrentPosition < 0) {clawCurrentPosition = 0;}
+            else
+            {
+                clawCurrentPosition -= 0.0075;
+                sherry.setPosition(clawCurrentPosition);
+            }
+        }
     }
 
-    private void MoveArm(int positionToMove) {
-        switch (positionToMove) {
-            case 0:
-                barry.setTargetPosition(0);
-                break;
-            case 1:
-                barry.setTargetPosition(100); //Something thats not 0
-                break;
-            case 2:
-                barry.setTargetPosition(200); //Something thats not 0
-                break;
-            case 3:
-                barry.setTargetPosition(300); //Something thats not 0
-                break;
-            case 4:
-                barry.setTargetPosition(400); //Something thats not 0
-                break;
-            case 5:
-                barry.setTargetPosition(500); //Something thats not 0
-                break;
+    private void MoveArm()
+    {
+        if (this.gamepad1.dpad_up) {
+            barry.setTargetPosition(1700);
+            barry.setPower(1);
+        } else if (this.gamepad1.dpad_down) {
+            barry.setTargetPosition(0);
+            barry.setPower(0.5);
+        } else {
+            barry.setTargetPosition(barry.getCurrentPosition());
+            barry.setPower(1);
         }
 
+        double wrist_position = barry.getCurrentPosition() / 1700.0; //Ratio between servo movement and motor movement
+
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //garry.setPosition(wrist_position);
+
+        telemetry.addData("Arm Position: ", barry.getCurrentPosition());
+        telemetry.addData("Wrist Position: ", garry.getPosition());
+    }
+
+    private void ReInit()
+    {
+        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 }
