@@ -31,6 +31,7 @@ public class DriverControlled extends LinearOpMode {
     private double deadzone = 0.01;
 
     private double clawCurrentPosition = 0.5;
+    boolean was_pressed = false;
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -358,18 +359,30 @@ public class DriverControlled extends LinearOpMode {
 
     private void MoveArm()
     {
+        double wrist_position;
+
         if (this.gamepad1.right_trigger > 0) {
             barry.setTargetPosition(1700);
             barry.setPower(this.gamepad1.right_trigger);
+            was_pressed = true;
         } else if (this.gamepad1.left_trigger > 0) {
             barry.setTargetPosition(0);
             barry.setPower(this.gamepad1.left_trigger / 2);
-        } else {
+            was_pressed = true;
+        } else if (was_pressed) {
             barry.setTargetPosition(barry.getCurrentPosition());
             barry.setPower(1);
+            was_pressed = false;
         }
 
-        double wrist_position = barry.getCurrentPosition() / 1700.0; //Ratio between servo movement and motor movement
+        if (barry.getCurrentPosition() < 100)
+        {
+            wrist_position = 0.3069;
+        }
+        else
+        {
+            wrist_position = barry.getCurrentPosition() / 1700.0; //Ratio between servo movement and motor movement
+        }
 
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         garry.setPosition(wrist_position);
