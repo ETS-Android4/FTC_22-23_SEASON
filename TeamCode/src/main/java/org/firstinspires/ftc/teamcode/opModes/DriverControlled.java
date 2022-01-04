@@ -174,13 +174,33 @@ public class DriverControlled extends LinearOpMode {
 
     private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
     {
-        if (Joy_x > 0 && Joy_y > 0)
+        //Forward
+        if (Joy_x == 0 && Joy_y > 0)
+        {
+            dylan.setPower(speed);
+            jerry.setPower(speed);
+            bob.setPower(speed);
+            larry.setPower(speed);
+        }
+
+        //Backward
+        else if (Joy_x == 0 && Joy_y < 0)
+        {
+            dylan.setPower(-speed);
+            jerry.setPower(-speed);
+            bob.setPower(-speed);
+            larry.setPower(-speed);
+        }
+
+        //Forward to the right
+        else if (Joy_x >= 0 && Joy_y >= 0)
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(speed);
             larry.setPower(speed);
         }
+        //Backward to the right
         else if (Joy_x > 0 && Joy_y < 0)
         {
             dylan.setPower(0);
@@ -188,13 +208,15 @@ public class DriverControlled extends LinearOpMode {
             bob.setPower(-speed);
             larry.setPower(-speed);
         }
-        else if (Joy_x < 0 && Joy_y > 0)
+        //Forward to the left
+        else if (Joy_x <= 0 && Joy_y >= 0)
         {
             dylan.setPower(speed);
             jerry.setPower(speed);
             bob.setPower(0);
             larry.setPower(0);
         }
+        //Backward to the left
         else if (Joy_x < 0 && Joy_y < 0)
         {
             dylan.setPower(-speed);
@@ -202,37 +224,6 @@ public class DriverControlled extends LinearOpMode {
             bob.setPower(0);
             larry.setPower(0);
         }
-    }
-
-    private void TurnPlaces (double leftJoy_x, double leftJoy_y, double speed)
-    {
-        if (leftJoy_y < 0)
-        {
-            speed = -speed;
-        }
-
-        if(leftJoy_x > 0)
-        {
-            dylan.setPower(speed * Math.abs(leftJoy_x / 2));
-            jerry.setPower(speed * Math.abs(leftJoy_x / 2));
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-        else if(leftJoy_x < 0)
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(speed * Math.abs(leftJoy_x / 2));
-            larry.setPower(speed * Math.abs(leftJoy_x / 2));
-        }
-        else
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-
     }
 
     private String calculatedDirection (double Joy_x, double Joy_y)
@@ -367,12 +358,12 @@ public class DriverControlled extends LinearOpMode {
 
     private void MoveArm()
     {
-        if (this.gamepad1.dpad_up) {
+        if (this.gamepad1.right_trigger > 0) {
             barry.setTargetPosition(1700);
-            barry.setPower(1);
-        } else if (this.gamepad1.dpad_down) {
+            barry.setPower(this.gamepad1.right_trigger);
+        } else if (this.gamepad1.left_trigger > 0) {
             barry.setTargetPosition(0);
-            barry.setPower(0.5);
+            barry.setPower(this.gamepad1.left_trigger / 2);
         } else {
             barry.setTargetPosition(barry.getCurrentPosition());
             barry.setPower(1);
@@ -381,7 +372,7 @@ public class DriverControlled extends LinearOpMode {
         double wrist_position = barry.getCurrentPosition() / 1700.0; //Ratio between servo movement and motor movement
 
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //garry.setPosition(wrist_position);
+        garry.setPosition(wrist_position);
 
         telemetry.addData("Arm Position: ", barry.getCurrentPosition());
         telemetry.addData("Wrist Position: ", garry.getPosition());
