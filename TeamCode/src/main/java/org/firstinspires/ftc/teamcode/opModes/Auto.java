@@ -29,6 +29,8 @@ public class Auto extends LinearOpMode {
     // Arm motors/servos
     private DcMotorEx barry;
     private Servo garry;
+    private Servo sherry;
+
 
     @Override
     public void runOpMode() {
@@ -41,6 +43,8 @@ public class Auto extends LinearOpMode {
         jerry = hardwareMap.get(DcMotorEx.class, "back_right_motor");
         barry = hardwareMap.get(DcMotorEx.class, "swing_arm_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
+        sherry = hardwareMap.get(Servo.class, "claw_servo");
+
 
         // Wait for the game to begin
         telemetry.addData(">", "Press Play to start op mode");
@@ -61,16 +65,12 @@ public class Auto extends LinearOpMode {
         waitForStart();
         runtime.reset();
         //test encoders on motor
-        DrivePlaces("RIGHT", .8, 5000);
-        DrivePlaces("Forward", .8, 2000);
-        DrivePlaces("FORWARD/RIGHT", .8, 6000);
-        DrivePlaces("BACKWARD", .8, 2000);
 
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            telemetry.addData("encoder value", jerry.getCurrentPosition());
+            telemetry.addData("encoder value", 4);
             telemetry.update();
         }
     }
@@ -143,6 +143,12 @@ public class Auto extends LinearOpMode {
                 bob.setTargetPosition(distance);
                 larry.setTargetPosition(0);
                 break;
+            default:
+                dylan.setTargetPosition(0);
+                jerry.setTargetPosition(0);
+                bob.setTargetPosition(0);
+                larry.setTargetPosition(0);
+                break;
         }
         dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -200,8 +206,7 @@ public class Auto extends LinearOpMode {
         }
     }
 
-
-    private void Arm(ArmPositions positionToMove) {
+    public void Arm() {
 
     }
     public void ClawFunction()

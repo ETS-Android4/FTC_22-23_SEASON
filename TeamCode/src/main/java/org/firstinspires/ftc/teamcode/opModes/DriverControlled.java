@@ -22,6 +22,7 @@ public class DriverControlled extends LinearOpMode {
     private DcMotorEx barry;
     private Servo garry;
     private Servo sherry;
+    private DcMotor lamar;
 
     // Other stuff
     private double leftJoy_y;
@@ -31,7 +32,7 @@ public class DriverControlled extends LinearOpMode {
     private double deadzone = 0.01;
 
     private double clawCurrentPosition = 0.5;
-    boolean was_pressed = false;
+    boolean was_pressed = true;
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -47,6 +48,8 @@ public class DriverControlled extends LinearOpMode {
         barry = hardwareMap.get(DcMotorEx.class, "swing_arm_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
+        lamar = hardwareMap.get(DcMotor.class, "spin_motor");
+
 
         // Wait for the game to begin
         telemetry.addData(">", "Press Play to start op mode");
@@ -100,6 +103,13 @@ public class DriverControlled extends LinearOpMode {
             }
 
             telemetry.update();
+
+            if (this.gamepad1.a){
+                lamar.setPower(0);
+            }
+            else if (this.gamepad1.b){
+                lamar.setPower(-.5);
+            }
         }
     }
 
@@ -360,6 +370,7 @@ public class DriverControlled extends LinearOpMode {
     private void MoveArm()
     {
         double wrist_position;
+
 
         if (this.gamepad1.right_trigger > 0) {
             barry.setTargetPosition(1700);
