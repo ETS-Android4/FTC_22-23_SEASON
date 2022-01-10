@@ -30,8 +30,12 @@ public class DriverControlled extends LinearOpMode {
     private double rightJoy_x;
     private double deadzone = 0.01;
 
+    private double wrist_position;
+    private double wrist_offset = 0;
     private double clawCurrentPosition = 0.5;
-    boolean was_pressed = false;
+    boolean was_pressed = true;
+
+    boolean spin = false;
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -71,12 +75,6 @@ public class DriverControlled extends LinearOpMode {
             leftJoy_x = lx / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
             leftJoy_y = ly / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
 
-            telemetry.addData("Right stick X", rightJoy_x);
-            telemetry.addData("Right stick Y", rightJoy_y);
-
-            telemetry.addData("Left stick X", leftJoy_x);
-            telemetry.addData("Left stick Y", leftJoy_y);
-
             if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
                 telemetry.addData("Turny things", 0);
@@ -90,14 +88,21 @@ public class DriverControlled extends LinearOpMode {
                 larry.setPower(0);
             }
 
-            if (this.gamepad1.dpad_right || this.gamepad1.dpad_left) {MoveClaw();}
+            if (this.gamepad1.a) {SpinDuckies();}
 
+            if (this.gamepad1.y) {ReInit();}
+
+            MoveClaw();
             MoveArm();
 
-            if (this.gamepad1.y)
-            {
-                ReInit();
-            }
+            telemetry.addData("Right stick X", rightJoy_x);
+            telemetry.addData("Right stick Y", rightJoy_y);
+
+            telemetry.addData("Left stick X", leftJoy_x);
+            telemetry.addData("Left stick Y", leftJoy_y);
+
+            telemetry.addData("Arm Position: ", barry.getCurrentPosition());
+            telemetry.addData("Wrist Position: ", garry.getPosition());
 
             telemetry.update();
         }
@@ -271,7 +276,7 @@ public class DriverControlled extends LinearOpMode {
         return directionToTravel;
     }
 
-    private double calculatedSpeed(String joyStick)
+    private double calculatedSpeed (String joyStick)
     {
         double speed;
 
@@ -291,10 +296,7 @@ public class DriverControlled extends LinearOpMode {
         {
             speed = Math.sqrt(Math.pow(lx, 2) + Math.pow(ly, 2)) * 0.75;;
         }
-        else
-        {
-            speed = 0;
-        }
+        else {speed = 0;}
 
         return speed;
     }
@@ -311,56 +313,43 @@ public class DriverControlled extends LinearOpMode {
 
         if (joyStick == "right")
         {
-            if (Math.abs(rx) > deadzone || Math.abs(ry) > deadzone)
-            {
-                isActive = true;
-            }
-            else
-            {
-                isActive = false;
-            }
+            if (Math.abs(rx) > deadzone || Math.abs(ry) > deadzone) {isActive = true;}
+            else {isActive = false;}
         }
         else if (joyStick == "left")
         {
-            if (Math.abs(lx) > deadzone || Math.abs(ly) > deadzone)
-            {
-                isActive = true;
-            }
-            else
-            {
-                isActive = false;
-            }
+            if (Math.abs(lx) > deadzone || Math.abs(ly) > deadzone) {isActive = true;}
+            else {isActive = false;}
         }
 
         return isActive;
     }
 
-    private void MoveClaw ()
+    private void MoveClaw()
     {
         if (this.gamepad1.dpad_left)
         {
             if (clawCurrentPosition > 1) {clawCurrentPosition = 1;}
-            else
-            {
-                clawCurrentPosition += 0.0075;
-                sherry.setPosition(clawCurrentPosition);
-            }
+            else {clawCurrentPosition += 0.0075;}
         }
         else if (this.gamepad1.dpad_right)
         {
             if (clawCurrentPosition < 0) {clawCurrentPosition = 0;}
-            else
-            {
-                clawCurrentPosition -= 0.0075;
-                sherry.setPosition(clawCurrentPosition);
-            }
+            else {clawCurrentPosition -= 0.0075;}
         }
+
+        if (this.gamepad1.dpad_up) {wrist_offset += 0.01;}
+        else if (this.gamepad1.dpad_down) {wrist_offset -= 0.01;}
+
+        if (barry.getCurrentPosition() < 100) {wrist_position = 0.3069;}
+        else {wrist_position = barry.getCurrentPosition() / 1700.0;}
+
+        garry.setPosition(wrist_position + wrist_offset);
+        sherry.setPosition(clawCurrentPosition);
     }
 
     private void MoveArm()
     {
-        double wrist_position;
-
         if (this.gamepad1.right_trigger > 0) {
             barry.setTargetPosition(1700);
             barry.setPower(this.gamepad1.right_trigger);
@@ -375,20 +364,15 @@ public class DriverControlled extends LinearOpMode {
             was_pressed = false;
         }
 
-        if (barry.getCurrentPosition() < 100)
-        {
-            wrist_position = 0.3069;
-        }
-        else
-        {
-            wrist_position = barry.getCurrentPosition() / 1700.0; //Ratio between servo movement and motor movement
-        }
-
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        garry.setPosition(wrist_position);
+    }
 
-        telemetry.addData("Arm Position: ", barry.getCurrentPosition());
-        telemetry.addData("Wrist Position: ", garry.getPosition());
+    private void SpinDuckies()
+    {
+        if (spin = false)
+        {
+
+        }
     }
 
     private void ReInit()

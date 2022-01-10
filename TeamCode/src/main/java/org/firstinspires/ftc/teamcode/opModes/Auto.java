@@ -77,6 +77,8 @@ public class Auto extends LinearOpMode {
 
     private void DrivePlaces (String direction, double speed, int distance)
     {
+        direction.toUpperCase();
+
         distance = abs(distance);
         switch (direction)
         {
