@@ -17,6 +17,7 @@ public class DriverControlled extends LinearOpMode {
     private DcMotorEx dylan;
     private DcMotorEx larry;
     private DcMotorEx jerry;
+    private DcMotorEx sheral;
 
     // Arm motors/servos
     private DcMotorEx barry;
@@ -35,8 +36,6 @@ public class DriverControlled extends LinearOpMode {
     private double clawCurrentPosition = 0.5;
     boolean was_pressed = true;
 
-    boolean spin = false;
-
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
 
@@ -49,6 +48,7 @@ public class DriverControlled extends LinearOpMode {
         larry = hardwareMap.get(DcMotorEx.class, "back_left_motor");
         jerry = hardwareMap.get(DcMotorEx.class, "back_right_motor");
         barry = hardwareMap.get(DcMotorEx.class, "swing_arm_motor");
+        sheral = hardwareMap.get(DcMotorEx.class, "spin_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
 
@@ -88,12 +88,13 @@ public class DriverControlled extends LinearOpMode {
                 larry.setPower(0);
             }
 
-            if (this.gamepad1.a) {SpinDuckies();}
-
             if (this.gamepad1.y) {ReInit();}
 
             MoveClaw();
             MoveArm();
+
+            if (this.gamepad1.a) {sheral.setPower(0.5);}
+            else {sheral.setPower(0);}
 
             telemetry.addData("Right stick X", rightJoy_x);
             telemetry.addData("Right stick Y", rightJoy_y);
@@ -315,11 +316,13 @@ public class DriverControlled extends LinearOpMode {
         {
             if (Math.abs(rx) > deadzone || Math.abs(ry) > deadzone) {isActive = true;}
             else {isActive = false;}
+            telemetry.addData("Right joystick is active: ", isActive);
         }
         else if (joyStick == "left")
         {
             if (Math.abs(lx) > deadzone || Math.abs(ly) > deadzone) {isActive = true;}
             else {isActive = false;}
+            telemetry.addData("Left joystick is active: ", isActive);
         }
 
         return isActive;
@@ -338,13 +341,15 @@ public class DriverControlled extends LinearOpMode {
             else {clawCurrentPosition -= 0.0075;}
         }
 
-        if (this.gamepad1.dpad_up) {wrist_offset += 0.01;}
-        else if (this.gamepad1.dpad_down) {wrist_offset -= 0.01;}
+        wrist_position = barry.getCurrentPosition() / 1700.0;
 
-        if (barry.getCurrentPosition() < 100) {wrist_position = 0.3069;}
-        else {wrist_position = barry.getCurrentPosition() / 1700.0;}
+        if (this.gamepad1.dpad_down && (wrist_position + wrist_offset <= 1)) {wrist_offset += 0.005;}
+        else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {wrist_offset -= 0.005;}
 
-        garry.setPosition(wrist_position + wrist_offset);
+        if (barry.getCurrentPosition() < 100) {garry.setPosition(0.3069);}
+
+        else {garry.setPosition(wrist_position + wrist_offset);}
+
         sherry.setPosition(clawCurrentPosition);
     }
 
@@ -365,14 +370,6 @@ public class DriverControlled extends LinearOpMode {
         }
 
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-    private void SpinDuckies()
-    {
-        if (spin = false)
-        {
-
-        }
     }
 
     private void ReInit()
