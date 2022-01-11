@@ -1,3 +1,4 @@
+/*#################### IMPORTS ####################*/
 package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,43 +7,48 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+/*#################### END IMPORTS ####################*/
 
-
-@TeleOp(name = "GudCode", group = "opModes")
+@TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
 
 public class DriverControlled extends LinearOpMode {
+/*####################  VARIABLE DECLARATIONS ####################*/
 
     // Chassis motors
-    private DcMotorEx bob;
-    private DcMotorEx dylan;
-    private DcMotorEx larry;
-    private DcMotorEx jerry;
-    private DcMotorEx sheral;
+    private DcMotorEx bob; // Front-left chassis motor
+    private DcMotorEx dylan; // Front-right chassis motor
+    private DcMotorEx larry; // Back-left chassis motor
+    private DcMotorEx jerry; // Back-right chassis motor
+    private DcMotorEx sheral; //Spinner
 
     // Arm motors/servos
     private DcMotorEx barry;
     private Servo garry;
     private Servo sherry;
 
-    // Other stuff
+    // Variable placeholders
     private double leftJoy_y;
     private double rightJoy_y;
     private double leftJoy_x;
     private double rightJoy_x;
-    private double deadzone = 0.01;
+
+    private double clawCurrentPosition = 0.5; // Servos default to 0.5 as not moving
 
     private double wrist_position;
-    private double wrist_offset = 0;
-    private double clawCurrentPosition = 0.5;
-    boolean was_pressed = true;
+    private double wrist_offset = 0; // Allows for manual control of wrist angle
+    boolean was_pressed = true; // Flag used for detecting when to hold the arm in position
+
+    private double deadzone = 0.01; // Distance required to trigger detection of the joysticks
+    private double speed_cap = 0.75; // Maximum percentage of power the motors are allowed to use
 
     private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
+/*#################### END VARIABLE DECLARATIONS ####################*/
 
     @Override
     public void runOpMode() throws InterruptedException {
-
-        // Hardware mapping
+    /*#################### INITALIZATION STAGE ####################*/
+        // Map variables to motors in driver station configuration
         bob = hardwareMap.get(DcMotorEx.class, "front_left_motor");
         dylan = hardwareMap.get(DcMotorEx.class, "front_right_motor");
         larry = hardwareMap.get(DcMotorEx.class, "back_left_motor");
@@ -52,7 +58,6 @@ public class DriverControlled extends LinearOpMode {
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
 
-        // Wait for the game to begin
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
 
@@ -61,20 +66,28 @@ public class DriverControlled extends LinearOpMode {
         bob.setDirection(DcMotorSimple.Direction.REVERSE);
         larry.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        waitForStart();
+        waitForStart(); // Activated upon pressing play (after pressing initalize)
 
+    /*#################### END INITALIZATION STAGE ####################*/
+
+    /*#################### RUNNING STAGE ####################*/
+
+        // Main while loop (this runs until stopped from the drivers station)
         while (opModeIsActive()) {
+
+            // Placeholders to make the math easier
             double rx = this.gamepad1.right_stick_x;
             double ry = -this.gamepad1.right_stick_y;
             double lx = this.gamepad1.left_stick_x;
             double ly = -this.gamepad1.left_stick_y;
 
-            // Calculate point on the circumference of the circle to use as the joystick location
+            // Calculate point on the circumference of the circle to use as the joystick location (distance formula)
             rightJoy_x = rx / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
             rightJoy_y = ry / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
             leftJoy_x = lx / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
             leftJoy_y = ly / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
 
+            // Logic to give determine which stick is in use (gives priority to the left stick when both are in use)
             if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
                 telemetry.addData("Turny things", 0);
@@ -88,14 +101,17 @@ public class DriverControlled extends LinearOpMode {
                 larry.setPower(0);
             }
 
-            if (this.gamepad1.y) {ReInit();}
+            if (this.gamepad1.y) {ReInit();} // Y resets the encoders in all chassis motors
 
+            // Collectivly causes arm movement
             MoveClaw();
             MoveArm();
 
+            // Spins the spinner for the ducks
             if (this.gamepad1.a) {sheral.setPower(0.5);}
             else {sheral.setPower(0);}
 
+        /*#################### TROUBLESHOOTING ####################*/
             telemetry.addData("Right stick X", rightJoy_x);
             telemetry.addData("Right stick Y", rightJoy_y);
 
@@ -106,12 +122,18 @@ public class DriverControlled extends LinearOpMode {
             telemetry.addData("Wrist Position: ", garry.getPosition());
 
             telemetry.update();
+        /*#################### TROUBLESHOOTING ####################*/
         }
     }
+    /*#################### END RUNNING STAGE ####################*/
 
+/*#################### FUNCTIONS ####################*/
+    // Drives in the provided direction at the provided power
     private void DrivePlaces (String direction, double speed)
     {
-        switch (direction)
+        direction.toUpperCase(); // Prevents capitalization errors because that causes pain
+
+        switch (direction) //Determines which direction to travel based on input
         {
             case "STOP":
                 // Stop
@@ -179,9 +201,10 @@ public class DriverControlled extends LinearOpMode {
         }
     }
 
+    // Turns by leaving one side off and turning the other side on
     private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
     {
-        //Forward
+        // Go forward if joystick faces directly forward
         if (Joy_x == 0 && Joy_y > 0)
         {
             dylan.setPower(speed);
@@ -190,7 +213,7 @@ public class DriverControlled extends LinearOpMode {
             larry.setPower(speed);
         }
 
-        //Backward
+        // Go backward if joystick faces directly backward
         else if (Joy_x == 0 && Joy_y < 0)
         {
             dylan.setPower(-speed);
@@ -199,7 +222,7 @@ public class DriverControlled extends LinearOpMode {
             larry.setPower(-speed);
         }
 
-        //Forward to the right
+        // Turn right with positive power if the joystick is in the 1st quadrant
         else if (Joy_x >= 0 && Joy_y >= 0)
         {
             dylan.setPower(0);
@@ -207,15 +230,7 @@ public class DriverControlled extends LinearOpMode {
             bob.setPower(speed);
             larry.setPower(speed);
         }
-        //Backward to the right
-        else if (Joy_x > 0 && Joy_y < 0)
-        {
-            dylan.setPower(0);
-            jerry.setPower(0);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
-        }
-        //Forward to the left
+        // Turn left with positive power if the joystick is in the 2nd quadrant
         else if (Joy_x <= 0 && Joy_y >= 0)
         {
             dylan.setPower(speed);
@@ -223,7 +238,7 @@ public class DriverControlled extends LinearOpMode {
             bob.setPower(0);
             larry.setPower(0);
         }
-        //Backward to the left
+        // Turn left with negative power if the joystick is in the 3rd quadrant
         else if (Joy_x < 0 && Joy_y < 0)
         {
             dylan.setPower(-speed);
@@ -231,12 +246,22 @@ public class DriverControlled extends LinearOpMode {
             bob.setPower(0);
             larry.setPower(0);
         }
+        // Turn right with negative power if the joystick is in the 4th quadrant
+        else if (Joy_x > 0 && Joy_y < 0)
+        {
+            dylan.setPower(0);
+            jerry.setPower(0);
+            bob.setPower(-speed);
+            larry.setPower(-speed);
+        }
     }
 
+    // Returns a direction based on joystick inputs (WARNING: Uses cosine stuff so just trust Mr. Beckman on this one)
     private String calculatedDirection (double Joy_x, double Joy_y)
     {
         String directionToTravel;
 
+        // Divides the joystick into 8 possible slices and determines a direction based on which slice it's in
         if (Joy_x > Math.cos(1.96) && Joy_x < Math.cos(1.18) && Joy_y > 0)
         {
             directionToTravel = "FORWARD"; // Forwards direction
@@ -271,37 +296,40 @@ public class DriverControlled extends LinearOpMode {
         }
         else
         {
-            directionToTravel = "STOP";
+            directionToTravel = "STOP"; // Stop just as a precaution
         }
 
         return directionToTravel;
     }
 
+    // Calculates the magnitude on the joysticks position and returns it as a power value for the motors
     private double calculatedSpeed (String joyStick)
     {
+        joyStick.toLowerCase(); // Prevents capitalization errors
+
         double speed;
 
-        // Repeat of initial values, but only applies to this method
+        // Repeat of initial values, but only applies to this method (it's bad practice but fixed the problem so idk)
         double rx = this.gamepad1.right_stick_x;
         double ry = -this.gamepad1.right_stick_y;
         double lx = this.gamepad1.left_stick_x;
         double ly = -this.gamepad1.left_stick_y;
 
-        joyStick.toLowerCase();
-
+        // Calculates magnitude of the current stick
         if (joyStick == "right")
         {
-            speed = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2)) * 0.75;;
+            speed = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));;
         }
         else if(joyStick == "left")
         {
-            speed = Math.sqrt(Math.pow(lx, 2) + Math.pow(ly, 2)) * 0.75;;
+            speed = Math.sqrt(Math.pow(lx, 2) + Math.pow(ly, 2));;
         }
         else {speed = 0;}
 
-        return speed;
+        return speed * speed_cap; // Applies a limiter on the speed
     }
 
+    // Returns weither the selected joystick is in use (has a value larger than the deadzone)
     private boolean JoyIsActive (String joyStick)
     {
         boolean isActive = false;
@@ -310,7 +338,7 @@ public class DriverControlled extends LinearOpMode {
         double lx = this.gamepad1.left_stick_x;
         double ly = -this.gamepad1.left_stick_y;
 
-        joyStick.toLowerCase();
+        joyStick.toLowerCase(); // Prevents capitalization errors
 
         if (joyStick == "right")
         {
@@ -328,33 +356,40 @@ public class DriverControlled extends LinearOpMode {
         return isActive;
     }
 
+    // Responsible for wrist movement and the opening/closing of the claw
     private void MoveClaw()
     {
-        if (this.gamepad1.dpad_left)
+        // Incriment the desired position while holding the corresponding direction on the dpad
+        if (this.gamepad1.dpad_left) // Open
         {
             if (clawCurrentPosition > 1) {clawCurrentPosition = 1;}
             else {clawCurrentPosition += 0.0075;}
         }
-        else if (this.gamepad1.dpad_right)
+        else if (this.gamepad1.dpad_right) // Close
         {
             if (clawCurrentPosition < 0) {clawCurrentPosition = 0;}
             else {clawCurrentPosition -= 0.0075;}
         }
 
-        wrist_position = barry.getCurrentPosition() / 1700.0;
+        wrist_position = barry.getCurrentPosition() / 1700.0; // Keeps the claw level when moving the arm
 
+        // Incriment the offset of the wrist (up or down) with the dpad (applies when leveling with the arm)
         if (this.gamepad1.dpad_down && (wrist_position + wrist_offset <= 1)) {wrist_offset += 0.005;}
         else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {wrist_offset -= 0.005;}
 
+        // Move the wrist to allow for picking up cubes/balls (ignores offset to prevent damage)
         if (barry.getCurrentPosition() < 100) {garry.setPosition(0.3069);}
 
-        else {garry.setPosition(wrist_position + wrist_offset);}
+        else {garry.setPosition(wrist_position + wrist_offset);} // Actually setting the position of wrist
 
-        sherry.setPosition(clawCurrentPosition);
+        sherry.setPosition(clawCurrentPosition); // Actually open/close the claw
     }
 
+    // Responsible for arm movement
     private void MoveArm()
     {
+        // Moves arm when triggers are pressed (speed determined by how far the trigger is pressed)
+        // Holds the arm in it's current position when it's not moving
         if (this.gamepad1.right_trigger > 0) {
             barry.setTargetPosition(1700);
             barry.setPower(this.gamepad1.right_trigger);
@@ -369,9 +404,10 @@ public class DriverControlled extends LinearOpMode {
             was_pressed = false;
         }
 
-        barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        barry.setMode(DcMotor.RunMode.RUN_TO_POSITION); // Actually move the arm
     }
 
+    // Resets motor encoders (in case everything is screwed up)
     private void ReInit()
     {
         bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -380,4 +416,6 @@ public class DriverControlled extends LinearOpMode {
         jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+
+/*#################### END FUNCTIONS ####################*/
 }
