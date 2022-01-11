@@ -61,10 +61,12 @@ public class DriverControlled extends LinearOpMode {
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
 
+        // Setting motor direction internally so i dont have to do -(-(-(-speed)))
         dylan.setDirection((DcMotorSimple.Direction.FORWARD));
         jerry.setDirection(DcMotorSimple.Direction.FORWARD);
         bob.setDirection(DcMotorSimple.Direction.REVERSE);
         larry.setDirection(DcMotorSimple.Direction.REVERSE);
+        sheral.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart(); // Activated upon pressing play (after pressing initalize)
 
@@ -90,10 +92,8 @@ public class DriverControlled extends LinearOpMode {
             // Logic to give determine which stick is in use (gives priority to the left stick when both are in use)
             if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
-                telemetry.addData("Turny things", 0);
             } else if (JoyIsActive("right")) {
                 DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), calculatedSpeed("right"));
-                telemetry.addData("Drivy things", 0);
             } else {
                 dylan.setPower(0);
                 jerry.setPower(0);
@@ -110,6 +110,12 @@ public class DriverControlled extends LinearOpMode {
             // Spins the spinner for the ducks
             if (this.gamepad1.a) {sheral.setPower(0.5);}
             else {sheral.setPower(0);}
+
+            // Complex shutdown condition so we don't accidentally turn the robot off
+            if (this.gamepad1.left_trigger == 1 && this.gamepad1.right_trigger == 1 && this.gamepad1.left_bumper && this.gamepad1.right_bumper)
+            {
+                DriverShutdown();
+            }
 
         /*#################### TROUBLESHOOTING ####################*/
             telemetry.addData("Right stick X", rightJoy_x);
@@ -344,13 +350,11 @@ public class DriverControlled extends LinearOpMode {
         {
             if (Math.abs(rx) > deadzone || Math.abs(ry) > deadzone) {isActive = true;}
             else {isActive = false;}
-            telemetry.addData("Right joystick is active: ", isActive);
         }
         else if (joyStick == "left")
         {
             if (Math.abs(lx) > deadzone || Math.abs(ly) > deadzone) {isActive = true;}
             else {isActive = false;}
-            telemetry.addData("Left joystick is active: ", isActive);
         }
 
         return isActive;
@@ -415,6 +419,29 @@ public class DriverControlled extends LinearOpMode {
         larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    private void DriverShutdown()
+    {
+        // Stop all chassis motors
+        dylan.setPower(0);
+        jerry.setPower(0);
+        bob.setPower(0);
+        larry.setPower(0);
+
+        //  Stop the spinner
+        sheral.setPower(0);
+
+        // Return arm and claw to starter position
+        sherry.setPosition(0.5);
+        garry.setPosition(0.3069);
+        barry.setTargetPosition(0);
+        barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        barry.setPower(1);
+
+        sleep(1000); // Gives time for the motors and servos to return to starter position before shutdown
+
+        requestOpModeStop(); // Attempt to end the opmode
     }
 
 /*#################### END FUNCTIONS ####################*/
