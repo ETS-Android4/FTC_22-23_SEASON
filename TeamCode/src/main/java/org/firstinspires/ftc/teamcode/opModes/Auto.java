@@ -69,7 +69,14 @@ public class Auto extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        //test encoders on motor
+
+        //code goes here ------------------------
+
+        TurnPlacesNew("LEFTBACK", .6, 2000);
+
+
+        //code goes here ------------------------
+
 
 
 
@@ -158,6 +165,10 @@ public class Auto extends LinearOpMode {
                 break;
         }
 
+        dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bob.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        larry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         dylan.setPower(speed);
         jerry.setPower(speed);
@@ -181,30 +192,35 @@ public class Auto extends LinearOpMode {
     private void TurnPlacesNew (String direction, double speed, int mSecs)
     {
 
+        dylan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        jerry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bob.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        larry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         direction = direction.toUpperCase();
 
-        if (direction == "LEFTBACK")
+        if (direction == "RIGHTFRONT")
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(speed);
             larry.setPower(speed);
         }
-        else if (direction == "LEFTFRONT")
+        else if (direction == "RIGHTBACK")
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(-speed);
             larry.setPower(-speed);
         }
-        else if (direction == "RIGHTBACK")
+        else if (direction == "LEFTFRONT")
         {
             dylan.setPower(speed);
             jerry.setPower(speed);
             bob.setPower(0);
             larry.setPower(0);
         }
-        else if (direction == "RIGHTFRONT")
+        else if (direction == "LEFTBACK")
         {
             dylan.setPower(-speed);
             jerry.setPower(-speed);
@@ -253,8 +269,9 @@ public class Auto extends LinearOpMode {
         sherry.setPosition(position);
     }
 
-    public void spin(float position){
+    public void spin(int mSecs){
         sheral.setPower(0);
+        sleep(mSecs);
     }
 }
 
