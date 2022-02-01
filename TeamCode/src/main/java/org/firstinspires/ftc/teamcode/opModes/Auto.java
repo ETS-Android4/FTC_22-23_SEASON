@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.res.ArmPositions;
 
+import java.util.Locale;
+
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoBoi", group="opModes")
 
 public class Auto extends LinearOpMode {
@@ -75,9 +77,9 @@ public class Auto extends LinearOpMode {
         }
     }
 
-    private void DrivePlaces (String direction, double speed, int distance)
+    private void DrivePlaces (String directionInput, double speed, int distance)
     {
-        direction.toUpperCase();
+        String direction = directionInput.toUpperCase();
 
         distance = abs(distance);
         switch (direction)

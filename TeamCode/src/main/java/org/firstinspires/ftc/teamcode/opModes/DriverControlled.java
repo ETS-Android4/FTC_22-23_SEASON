@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 /*#################### END IMPORTS ####################*/
 
 @TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
-
 public class DriverControlled extends LinearOpMode {
 /*####################  VARIABLE DECLARATIONS ####################*/
 
@@ -26,27 +25,18 @@ public class DriverControlled extends LinearOpMode {
     private Servo garry;
     private Servo sherry;
 
-    // Variable placeholders
-    private double leftJoy_y;
-    private double rightJoy_y;
-    private double leftJoy_x;
-    private double rightJoy_x;
-
     private double clawCurrentPosition = 0.5; // Servos default to 0.5 as not moving
 
-    private double wrist_position;
     private double wrist_offset = 0; // Allows for manual control of wrist angle
     boolean was_pressed = true; // Flag used for detecting when to hold the arm in position
 
-    private double deadzone = 0.01; // Distance required to trigger detection of the joysticks
-    private double speed_cap = 0.75; // Maximum percentage of power the motors are allowed to use
-
-    private static final String VUFORIA_KEY =
+    /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
+    */
 /*#################### END VARIABLE DECLARATIONS ####################*/
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
     /*#################### INITALIZATION STAGE ####################*/
         // Map variables to motors in driver station configuration
         bob = hardwareMap.get(DcMotorEx.class, "front_left_motor");
@@ -84,10 +74,10 @@ public class DriverControlled extends LinearOpMode {
             double ly = -this.gamepad1.left_stick_y;
 
             // Calculate point on the circumference of the circle to use as the joystick location (distance formula)
-            rightJoy_x = rx / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
-            rightJoy_y = ry / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
-            leftJoy_x = lx / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
-            leftJoy_y = ly / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
+            double rightJoy_x = rx / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
+            double rightJoy_y = ry / Math.sqrt(((Math.pow(rx, 2)) + (Math.pow(ry, 2))));
+            double leftJoy_x = lx / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
+            double leftJoy_y = ly / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
 
             // Logic to give determine which stick is in use (gives priority to the left stick when both are in use)
             if (JoyIsActive("left")) {
@@ -135,9 +125,9 @@ public class DriverControlled extends LinearOpMode {
 
 /*#################### FUNCTIONS ####################*/
     // Drives in the provided direction at the provided power
-    private void DrivePlaces (String direction, double speed)
+    private void DrivePlaces (String directionInput, double speed)
     {
-        direction.toUpperCase(); // Prevents capitalization errors because that causes pain
+       String direction = directionInput.toUpperCase(); // Prevents capitalization errors because that causes pain
 
         switch (direction) //Determines which direction to travel based on input
         {
@@ -309,9 +299,9 @@ public class DriverControlled extends LinearOpMode {
     }
 
     // Calculates the magnitude on the joysticks position and returns it as a power value for the motors
-    private double calculatedSpeed (String joyStick)
+    private double calculatedSpeed (String joyStickInput)
     {
-        joyStick.toLowerCase(); // Prevents capitalization errors
+        String joyStick = joyStickInput.toLowerCase(); // Prevents capitalization errors
 
         double speed;
 
@@ -322,21 +312,23 @@ public class DriverControlled extends LinearOpMode {
         double ly = -this.gamepad1.left_stick_y;
 
         // Calculates magnitude of the current stick
-        if (joyStick == "right")
+        if (joyStick.equals("right"))
         {
-            speed = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));;
+            speed = Math.sqrt(Math.pow(rx, 2) + Math.pow(ry, 2));
         }
-        else if(joyStick == "left")
+        else if(joyStick.equals("left"))
         {
-            speed = Math.sqrt(Math.pow(lx, 2) + Math.pow(ly, 2));;
+            speed = Math.sqrt(Math.pow(lx, 2) + Math.pow(ly, 2));
         }
         else {speed = 0;}
 
+        // Maximum percentage of power the motors are allowed to use
+        double speed_cap = 0.75;
         return speed * speed_cap; // Applies a limiter on the speed
     }
 
     // Returns weither the selected joystick is in use (has a value larger than the deadzone)
-    private boolean JoyIsActive (String joyStick)
+    private boolean JoyIsActive (String joyStickInput)
     {
         boolean isActive = false;
         double rx = this.gamepad1.right_stick_x;
@@ -344,17 +336,17 @@ public class DriverControlled extends LinearOpMode {
         double lx = this.gamepad1.left_stick_x;
         double ly = -this.gamepad1.left_stick_y;
 
-        joyStick.toLowerCase(); // Prevents capitalization errors
+        String joyStick = joyStickInput.toLowerCase(); // Prevents capitalization errors
 
-        if (joyStick == "right")
+        // Distance required to trigger detection of the joysticks
+        double deadzone = 0.01;
+        if (joyStick.equals("right"))
         {
-            if (Math.abs(rx) > deadzone || Math.abs(ry) > deadzone) {isActive = true;}
-            else {isActive = false;}
+            isActive = Math.abs(rx) > deadzone || Math.abs(ry) > deadzone;
         }
-        else if (joyStick == "left")
+        else if (joyStick.equals("left"))
         {
-            if (Math.abs(lx) > deadzone || Math.abs(ly) > deadzone) {isActive = true;}
-            else {isActive = false;}
+            isActive = Math.abs(lx) > deadzone || Math.abs(ly) > deadzone;
         }
 
         return isActive;
@@ -375,7 +367,7 @@ public class DriverControlled extends LinearOpMode {
             else {clawCurrentPosition -= 0.0075;}
         }
 
-        wrist_position = barry.getCurrentPosition() / 1700.0; // Keeps the claw level when moving the arm
+        double wrist_position = barry.getCurrentPosition() / 1700.0; // Keeps the claw level when moving the arm
 
         // Incriment the offset of the wrist (up or down) with the dpad (applies when leveling with the arm)
         if (this.gamepad1.dpad_down && (wrist_position + wrist_offset <= 1)) {wrist_offset += 0.005;}
@@ -419,6 +411,13 @@ public class DriverControlled extends LinearOpMode {
         larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        sleep(25);
+
+        bob.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        dylan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        larry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        jerry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void DriverShutdown()
