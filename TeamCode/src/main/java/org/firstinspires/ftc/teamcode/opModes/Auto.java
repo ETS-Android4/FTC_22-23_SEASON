@@ -82,7 +82,7 @@ public class Auto extends LinearOpMode {
 
     private void DrivePlaces (String direction, double speed, int distance)
     {
-        direction.toUpperCase();
+        direction = direction.toUpperCase();
 
         distance = abs(distance);
         switch (direction)
@@ -178,36 +178,46 @@ public class Auto extends LinearOpMode {
 
     }
 
-    private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
+    private void TurnPlacesNew (String direction, double speed, int mSecs)
     {
-        if (Joy_x > 0 && Joy_y > 0)
+
+        direction = direction.toUpperCase();
+
+        if (direction == "LEFTBACK")
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(speed);
             larry.setPower(speed);
         }
-        else if (Joy_x > 0 && Joy_y < 0)
+        else if (direction == "LEFTFRONT")
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(-speed);
             larry.setPower(-speed);
         }
-        else if (Joy_x < 0 && Joy_y > 0)
+        else if (direction == "RIGHTBACK")
         {
             dylan.setPower(speed);
             jerry.setPower(speed);
             bob.setPower(0);
             larry.setPower(0);
         }
-        else if (Joy_x < 0 && Joy_y < 0)
+        else if (direction == "RIGHTFRONT")
         {
             dylan.setPower(-speed);
             jerry.setPower(-speed);
             bob.setPower(0);
             larry.setPower(0);
         }
+
+        sleep(mSecs);
+
+        dylan.setPower(0);
+        jerry.setPower(0);
+        bob.setPower(0);
+        larry.setPower(0);
     }
 
     public void Arm(ArmPositions position, float power) {
