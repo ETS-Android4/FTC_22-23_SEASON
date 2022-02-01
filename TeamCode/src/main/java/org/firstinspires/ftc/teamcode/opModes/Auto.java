@@ -32,6 +32,8 @@ public class Auto extends LinearOpMode {
     private DcMotorEx barry;
     private Servo garry;
     private Servo sherry;
+    private DcMotorEx sheral;
+
 
 
     @Override
@@ -46,6 +48,9 @@ public class Auto extends LinearOpMode {
         barry = hardwareMap.get(DcMotorEx.class, "swing_arm_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
+        sheral = hardwareMap.get(DcMotorEx.class, "spin_motor");
+
+
 
 
         // Wait for the game to begin
@@ -154,10 +159,7 @@ public class Auto extends LinearOpMode {
                 larry.setTargetPosition(0);
                 break;
         }
-        dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bob.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        larry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
         dylan.setPower(speed);
         jerry.setPower(speed);
@@ -210,12 +212,41 @@ public class Auto extends LinearOpMode {
         }
     }
 
-    public void Arm() {
+    public void Arm(ArmPositions position, float power) {
+        switch (position) {
+            //set arm position and wrist position
+            case START:
+                barry.setTargetPosition(0);
+                break;
+            case PICKUP:
+                barry.setTargetPosition(2);
+                garry.setPosition(0.3069);
+                break;
+            case BOTTOM:
+                barry.setTargetPosition(300);
+                break;
+            case MIDDLE:
+                barry.setTargetPosition(500);
+                break;
+            case TOP:
+                barry.setTargetPosition(1400);
+                break;
+            case TOPTOP:
+                barry.setTargetPosition(1700);
+                break;
 
+
+        }
+        barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        barry.setPower(power);
     }
-    public void ClawFunction()
-    {
-        garry.setPosition(0);
+
+    public void Claw(float position) {
+        sherry.setPosition(position);
+    }
+
+    public void spin(float position){
+        sheral.setPower(0);
     }
 }
 
