@@ -4,7 +4,6 @@ import static java.lang.Math.abs;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,9 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.res.ArmPositions;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoBoi", group="opModes")
+@Autonomous(name="BlueDepot", group="opModes")
 
-public class Auto extends LinearOpMode {
+public class BlueDepot extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -71,12 +70,7 @@ public class Auto extends LinearOpMode {
         runtime.reset();
 
         //code goes here ------------------------
-        Arm(ArmPositions.START, .8 );
-        Arm(ArmPositions.PICKUP, .8 );
-        Arm(ArmPositions.BOTTOM, .8 );
-        Arm(ArmPositions.MIDDLE, .8 );
-        Arm(ArmPositions.TOP, .8 );
-        Arm(ArmPositions.TOPTOP, .8 );
+
 
 
 

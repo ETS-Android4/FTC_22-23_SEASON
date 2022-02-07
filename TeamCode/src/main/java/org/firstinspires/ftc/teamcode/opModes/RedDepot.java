@@ -4,7 +4,6 @@ import static java.lang.Math.abs;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,9 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.res.ArmPositions;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoBoi", group="opModes")
+@Autonomous(name="RedDepot", group="opModes")
 
-public class Auto extends LinearOpMode {
+public class RedDepot extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -71,12 +70,18 @@ public class Auto extends LinearOpMode {
         runtime.reset();
 
         //code goes here ------------------------
-        Arm(ArmPositions.START, .8 );
-        Arm(ArmPositions.PICKUP, .8 );
-        Arm(ArmPositions.BOTTOM, .8 );
-        Arm(ArmPositions.MIDDLE, .8 );
-        Arm(ArmPositions.TOP, .8 );
-        Arm(ArmPositions.TOPTOP, .8 );
+        Arm(ArmPositions.PICKUP,.8);
+        Claw(1);
+        sleep(1000);
+        Arm(ArmPositions.BOTTOM,.8);
+        DrivePlaces("FORWARD", .8, 1200);
+        TurnPlacesNew("LEFTFRONT",.8,700);
+        Claw(0);
+        sleep(1000);
+        TurnPlacesNew("LEFTBACK",.8,500);
+        DrivePlaces("left", .8, 4500);
+        spin( 1000);
+
 
 
 
@@ -279,6 +284,7 @@ public class Auto extends LinearOpMode {
         sleep(2000);
     }
 
+    //0 is ____
     public void Claw(float position) {
         sherry.setPosition(position);
     }
