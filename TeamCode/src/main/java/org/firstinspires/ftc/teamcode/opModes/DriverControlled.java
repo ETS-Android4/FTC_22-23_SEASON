@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
 public class DriverControlled extends LinearOpMode {
-/*####################  VARIABLE DECLARATIONS ####################*/
+    /*####################  VARIABLE DECLARATIONS ####################*/
 
     // Chassis motors
     private DcMotorEx bob; // Front-left chassis motor
@@ -33,11 +33,11 @@ public class DriverControlled extends LinearOpMode {
     /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
     */
-/*#################### END VARIABLE DECLARATIONS ####################*/
+    /*#################### END VARIABLE DECLARATIONS ####################*/
 
     @Override
     public void runOpMode() {
-    /*#################### INITALIZATION STAGE ####################*/
+        /*#################### INITALIZATION STAGE ####################*/
         // Map variables to motors in driver station configuration
         bob = hardwareMap.get(DcMotorEx.class, "front_left_motor");
         dylan = hardwareMap.get(DcMotorEx.class, "front_right_motor");
@@ -58,11 +58,25 @@ public class DriverControlled extends LinearOpMode {
         larry.setDirection(DcMotorSimple.Direction.REVERSE);
         sheral.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        // Resetting motor encoders
+        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sheral.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // Returning motors to regular runmode
+        dylan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        jerry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bob.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        larry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        sheral.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         waitForStart(); // Activated upon pressing play (after pressing initalize)
 
-    /*#################### END INITALIZATION STAGE ####################*/
+        /*#################### END INITALIZATION STAGE ####################*/
 
-    /*#################### RUNNING STAGE ####################*/
+        /*#################### RUNNING STAGE ####################*/
 
         // Main while loop (this runs until stopped from the drivers station)
         while (opModeIsActive()) {
@@ -107,7 +121,7 @@ public class DriverControlled extends LinearOpMode {
                 DriverShutdown();
             }
 
-        /*#################### TROUBLESHOOTING ####################*/
+            /*#################### TROUBLESHOOTING ####################*/
             telemetry.addData("Right stick X", rightJoy_x);
             telemetry.addData("Right stick Y", rightJoy_y);
 
@@ -118,16 +132,16 @@ public class DriverControlled extends LinearOpMode {
             telemetry.addData("Wrist Position: ", garry.getPosition());
 
             telemetry.update();
-        /*#################### TROUBLESHOOTING ####################*/
+            /*#################### TROUBLESHOOTING ####################*/
         }
     }
     /*#################### END RUNNING STAGE ####################*/
 
-/*#################### FUNCTIONS ####################*/
+    /*#################### FUNCTIONS ####################*/
     // Drives in the provided direction at the provided power
     private void DrivePlaces (String directionInput, double speed)
     {
-       String direction = directionInput.toUpperCase(); // Prevents capitalization errors because that causes pain
+        String direction = directionInput.toUpperCase(); // Prevents capitalization errors because that causes pain
 
         switch (direction) //Determines which direction to travel based on input
         {
@@ -374,7 +388,7 @@ public class DriverControlled extends LinearOpMode {
         else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {wrist_offset -= 0.005;}
 
         // Move the wrist to allow for picking up cubes/balls (ignores offset to prevent damage)
-        if (barry.getCurrentPosition() < 100) {garry.setPosition(0.3069);}
+        if (barry.getCurrentPosition() < 100) {garry.setPosition(0.2069);}
 
         else {garry.setPosition(wrist_position + wrist_offset);} // Actually setting the position of wrist
 
@@ -443,5 +457,5 @@ public class DriverControlled extends LinearOpMode {
         requestOpModeStop(); // Attempt to end the opmode
     }
 
-/*#################### END FUNCTIONS ####################*/
+    /*#################### END FUNCTIONS ####################*/
 }
