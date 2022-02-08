@@ -69,13 +69,16 @@ public class RedDepot extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        //code goes here ------------------------
+        //code goes here ------------------------ its hardcoded :[
+        //set claw and pickup block
         Arm(ArmPositions.PICKUP,.8);
         Claw(1);
         sleep(1000);
         Arm(ArmPositions.BOTTOM,.8);
+        //drive to tower
         DrivePlaces("FORWARD", .8, 1200);
         TurnPlacesNew("LEFTFRONT",.8,700);
+        //drop block in tower
         Claw(0);
         sleep(1000);
         TurnPlacesNew("LEFTBACK",.8,500);
