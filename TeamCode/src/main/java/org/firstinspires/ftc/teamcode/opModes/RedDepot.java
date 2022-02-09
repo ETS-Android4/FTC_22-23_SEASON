@@ -80,10 +80,13 @@ public class RedDepot extends LinearOpMode {
         TurnPlacesNew("LEFTFRONT",.8,700);
         //drop block in tower
         Claw(0);
-        sleep(1000);
-        TurnPlacesNew("LEFTBACK",.8,500);
-        DrivePlaces("left", .8, 4500);
+        sleep(2000);
+        //turn back towards spin and drive there
+        TurnPlacesNew("LEFTBACK",.8,1000);
+        DrivePlaces("BACKWARD", .8, 4500);
+        //spin duck off
         spin( 1000);
+        //
 
 
 
@@ -258,7 +261,7 @@ public class RedDepot extends LinearOpMode {
                 break;
             case PICKUP:
                 barry.setTargetPosition(2);
-                garry.setPosition(0.3069);
+                garry.setPosition(0.3569);
                 break;
             case BOTTOM:
                 barry.setTargetPosition(300);

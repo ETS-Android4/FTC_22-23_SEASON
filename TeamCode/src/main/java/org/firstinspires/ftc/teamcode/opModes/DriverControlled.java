@@ -20,15 +20,18 @@ public class DriverControlled extends LinearOpMode {
     private DcMotorEx jerry; // Back-right chassis motor
     private DcMotorEx sheral; //Spinner
 
+
     // Arm motors/servos
     private DcMotorEx barry;
     private Servo garry;
     private Servo sherry;
+    private Servo bulldozer;
 
     private double clawCurrentPosition = 0.5; // Servos default to 0.5 as not moving
 
     private double wrist_offset = 0; // Allows for manual control of wrist angle
     boolean was_pressed = true; // Flag used for detecting when to hold the arm in position
+    boolean bulldozer_flag = true; //Flag used for bulldozer to toggle
 
     /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -47,6 +50,7 @@ public class DriverControlled extends LinearOpMode {
         sheral = hardwareMap.get(DcMotorEx.class, "spin_motor");
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
+        bulldozer = hardwareMap.get(Servo.class, "bulldozer");
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -97,7 +101,7 @@ public class DriverControlled extends LinearOpMode {
             if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
             } else if (JoyIsActive("right")) {
-                DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), calculatedSpeed("right"));
+                DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), .8*calculatedSpeed("right"));
             } else {
                 dylan.setPower(0);
                 jerry.setPower(0);
@@ -107,12 +111,13 @@ public class DriverControlled extends LinearOpMode {
 
             if (this.gamepad1.y) {ReInit();} // Y resets the encoders in all chassis motors
 
+            ToggleBulldozer();
             // Collectivly causes arm movement
             MoveClaw();
             MoveArm();
 
             // Spins the spinner for the ducks
-            if (this.gamepad1.a) {sheral.setPower(0.5);}
+            if (this.gamepad1.a) {sheral.setPower(0.3);}
             else {sheral.setPower(0);}
 
             // Complex shutdown condition so we don't accidentally turn the robot off
@@ -388,9 +393,11 @@ public class DriverControlled extends LinearOpMode {
         else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {wrist_offset -= 0.005;}
 
         // Move the wrist to allow for picking up cubes/balls (ignores offset to prevent damage)
-        if (barry.getCurrentPosition() < 100) {garry.setPosition(0.2069);}
+        /*if (barry.getCurrentPosition() < 100) {garry.setPosition(0.4069);}
 
         else {garry.setPosition(wrist_position + wrist_offset);} // Actually setting the position of wrist
+        */
+        garry.setPosition(wrist_position + wrist_offset);
 
         sherry.setPosition(clawCurrentPosition); // Actually open/close the claw
     }
@@ -455,6 +462,22 @@ public class DriverControlled extends LinearOpMode {
         sleep(1000); // Gives time for the motors and servos to return to starter position before shutdown
 
         requestOpModeStop(); // Attempt to end the opmode
+    }
+
+    private void ToggleBulldozer(){
+
+        if (this.gamepad1.x && bulldozer_flag) {
+            if(bulldozer.getPosition()==0){
+                bulldozer.setPosition(1);
+            }else{
+                bulldozer.setPosition(0);
+            }
+            bulldozer_flag = false;
+        }else if (!this.gamepad1.x && !bulldozer_flag){
+            bulldozer_flag = true;
+        }
+
+
     }
 
     /*#################### END FUNCTIONS ####################*/
