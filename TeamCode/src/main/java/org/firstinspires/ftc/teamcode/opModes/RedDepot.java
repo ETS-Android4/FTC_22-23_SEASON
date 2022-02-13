@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.res.ArmPositions;
+import org.firstinspires.ftc.teamcode.res.ClawPositions;
 
 @Autonomous(name="RedDepot", group="opModes")
 
@@ -298,6 +299,17 @@ public class RedDepot extends LinearOpMode {
     public void spin(int mSecs){
         sheral.setPower(0);
         sleep(mSecs);
+    }
+
+    public void placeFreight(ArmPositions position){
+        if(position == ArmPositions.BOTTOM){
+
+        } else if (position == ArmPositions.MIDDLE) {
+
+
+        } else if (position == ArmPositions.TOP){
+
+        }
     }
 }
 
