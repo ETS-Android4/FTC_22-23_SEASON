@@ -50,7 +50,7 @@ public class RedDepot extends LinearOpMode {
 
     private float finalConfidence = 0;
     private float elementPosition;
-    ArmPositions dropHeight;
+    private ArmPositions dropHeight;
 
     @Override
     public void runOpMode() {
@@ -133,12 +133,14 @@ public class RedDepot extends LinearOpMode {
         tfod.deactivate();
         runtime.reset();
 
-        if (elementPosition > 0 && elementPosition < 275){
+        if (elementPosition >= 0 && elementPosition < 275){
             dropHeight = ArmPositions.BOTTOM;
         } else if (elementPosition >= 275 && elementPosition <= 460){
             dropHeight = ArmPositions.MIDDLE;
-        } else if (elementPosition > 460 && elementPosition < 645){
+        } else if (elementPosition > 460 && elementPosition <= 645){
             dropHeight = ArmPositions.TOP;
+        } else {
+            dropHeight = ArmPositions.PICKUP;
         }
 
         //code goes here ------------------------ its hardcoded :[
@@ -148,9 +150,10 @@ public class RedDepot extends LinearOpMode {
         sleep(1000);
         Arm(ArmPositions.BOTTOM,.8);
         //drive to tower
-        DrivePlaces("FORWARD", .8, 1200);
-        TurnPlacesNew("LEFTFRONT",.8,700);
+        DrivePlaces("FORWARD", .8, 1000);
+        TurnPlacesNew("RIGHTFRONT",.8,700);
         //drop block in tower
+        Arm(dropHeight, .8);
         Claw(0);
         sleep(2000);
         //turn back towards spin and drive there
