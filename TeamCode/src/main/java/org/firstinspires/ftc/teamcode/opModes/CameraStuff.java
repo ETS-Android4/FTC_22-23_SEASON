@@ -40,7 +40,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 
-@Autonomous(name = "TFOD Cam", group = "Sensors")
 public class CameraStuff extends LinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "BlooBoi_Proto.tflite";
