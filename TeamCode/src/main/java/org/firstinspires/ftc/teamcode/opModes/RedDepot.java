@@ -10,12 +10,28 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.res.ArmPositions;
 import org.firstinspires.ftc.teamcode.res.ClawPositions;
+
+import java.util.List;
 
 @Autonomous(name="RedDepot", group="opModes")
 
 public class RedDepot extends LinearOpMode {
+
+    private static final String TFOD_MODEL_ASSET = "BlooBoi_Proto.tflite";
+    private static final String[] LABELS = {"BlooBoi"};
+
+    private static final String VUFORIA_KEY =
+            "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
+
+    private VuforiaLocalizer vuforia;
+    private TFObjectDetector tfod;
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -32,7 +48,9 @@ public class RedDepot extends LinearOpMode {
     private Servo sherry;
     private DcMotorEx sheral;
 
-
+    private float finalConfidence = 0;
+    private float elementPosition;
+    private ArmPositions dropHeight;
 
     @Override
     public void runOpMode() {
@@ -66,27 +84,88 @@ public class RedDepot extends LinearOpMode {
         bob.setDirection(DcMotorSimple.Direction.REVERSE);
         larry.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
+        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
+        // first.
+        initVuforia();
+        initTfod();
+
+        if (tfod != null) {
+            tfod.activate();
+
+            // The TensorFlow software will scale the input images from the camera to a lower resolution.
+            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
+            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
+            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
+            // should be set to the value of the images used to create the TensorFlow Object Detection model
+            // (typically 16/9).
+            tfod.setZoom(1, 16.0 / 9.0);
+        }
+
+        while (!isStarted()) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    // step through the list of recognitions and display boundary info.
+                    int i = 0;
+                    for (Recognition recognition : updatedRecognitions) {
+                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                recognition.getLeft(), recognition.getTop());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                recognition.getRight(), recognition.getBottom());
+
+                        if (finalConfidence < recognition.getConfidence())
+                        {
+                            finalConfidence = recognition.getConfidence();
+                            elementPosition = recognition.getRight();
+                        }
+
+                        i++;
+                    }
+                    telemetry.update();
+                }
+            }
+        }
+
+        tfod.deactivate();
         runtime.reset();
+
+        if (elementPosition >= 0 && elementPosition < 275){
+            dropHeight = ArmPositions.BOTTOM;
+        } else if (elementPosition >= 275 && elementPosition <= 460){
+            dropHeight = ArmPositions.MIDDLE;
+        } else if (elementPosition > 460 && elementPosition <= 645){
+            dropHeight = ArmPositions.TOP;
+        } else {
+            dropHeight = ArmPositions.PICKUP;
+        }
 
         //code goes here ------------------------ its hardcoded :[
         //set claw and pickup block
-        Arm(ArmPositions.PICKUP,.8);
         Claw(1);
         sleep(1000);
-        Arm(ArmPositions.BOTTOM,.8);
-        //drive to tower
-        DrivePlaces("FORWARD", .8, 1200);
-        TurnPlacesNew("LEFTFRONT",.8,700);
+        Arm(ArmPositions.PICKUP,.8);
+        //position arm
+        //drive to thing and position arm
+        TurnPlacesNew("RIGHTFRONT",.8,1000);
+        Arm(dropHeight, .8);
+        TurnPlacesNew("LEFTFRONT",.8,550);
+
         //drop block in tower
         Claw(0);
         sleep(2000);
         //turn back towards spin and drive there
+        DrivePlaces("BACKWARD",.8,900);
+        Arm(ArmPositions.PICKUP, .8);
         TurnPlacesNew("LEFTBACK",.8,1000);
-        DrivePlaces("BACKWARD", .8, 4500);
+        DrivePlaces("BACKWARD", .6, 1900);
+        //DrivePlaces("RIGHT", .6, 1000);
         //spin duck off
-        spin( 1000);
+        spin(4000);
+        DrivePlaces("FORWARD",.8,4000);
         //
 
 
@@ -107,6 +186,10 @@ public class RedDepot extends LinearOpMode {
     private void DrivePlaces (String direction, double speed, int distance)
     {
         direction = direction.toUpperCase();
+        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         distance = abs(distance);
         switch (direction)
@@ -261,7 +344,7 @@ public class RedDepot extends LinearOpMode {
                 garry.setPosition(barry.getTargetPosition() / 1700.0);
                 break;
             case PICKUP:
-                barry.setTargetPosition(2);
+                barry.setTargetPosition(10);
                 garry.setPosition(0.3569);
                 break;
             case BOTTOM:
@@ -269,7 +352,7 @@ public class RedDepot extends LinearOpMode {
                 garry.setPosition(barry.getTargetPosition() / 1400.0);
                 break;
             case MIDDLE:
-                barry.setTargetPosition(600);
+                barry.setTargetPosition(750);
                 garry.setPosition(barry.getTargetPosition() / 1400.0);
                 break;
             case TOP:
@@ -288,7 +371,7 @@ public class RedDepot extends LinearOpMode {
         }
         barry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         barry.setPower(power);
-        sleep(2000);
+        sleep(1000);
     }
 
     //0 is ____
@@ -296,9 +379,10 @@ public class RedDepot extends LinearOpMode {
         sherry.setPosition(position);
     }
 
-    public void spin(int mSecs){
+    public void spin(int msecs){
+        sheral.setPower(-.1);
+        sleep(msecs);
         sheral.setPower(0);
-        sleep(mSecs);
     }
 
     public void placeFreight(ArmPositions position){
@@ -310,6 +394,35 @@ public class RedDepot extends LinearOpMode {
         } else if (position == ArmPositions.TOP){
 
         }
+    }
+
+    private void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    private void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }
 

@@ -32,6 +32,8 @@ public class DriverControlled extends LinearOpMode {
     private double wrist_offset = 0; // Allows for manual control of wrist angle
     boolean was_pressed = true; // Flag used for detecting when to hold the arm in position
     boolean bulldozer_flag = true; //Flag used for bulldozer to toggle
+    boolean turnForward = true; //Flag to see if robot turns forward or backward
+    boolean anotherFlag = true; //second flag for toggling
 
     /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -51,6 +53,7 @@ public class DriverControlled extends LinearOpMode {
         garry = hardwareMap.get(Servo.class, "wrist_joint");
         sherry = hardwareMap.get(Servo.class, "claw_servo");
         bulldozer = hardwareMap.get(Servo.class, "bulldozer");
+
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -117,13 +120,21 @@ public class DriverControlled extends LinearOpMode {
             MoveArm();
 
             // Spins the spinner for the ducks
-            if (this.gamepad1.a) {sheral.setPower(0.3);}
+            if (this.gamepad1.a) {sheral.setPower(0.1);}
             else {sheral.setPower(0);}
 
             // Complex shutdown condition so we don't accidentally turn the robot off
             if (this.gamepad1.left_trigger == 1 && this.gamepad1.right_trigger == 1 && this.gamepad1.left_bumper && this.gamepad1.right_bumper)
             {
                 DriverShutdown();
+            }
+
+            //
+            if (this.gamepad1.b && anotherFlag){
+                turnForward = !turnForward;
+                anotherFlag = false;
+            }else if (!this.gamepad1.b && !anotherFlag) {
+                anotherFlag = true;
             }
 
             /*#################### TROUBLESHOOTING ####################*/
@@ -219,50 +230,32 @@ public class DriverControlled extends LinearOpMode {
     // Turns by leaving one side off and turning the other side on
     private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
     {
-        // Go forward if joystick faces directly forward
-        if (Joy_x == 0 && Joy_y > 0)
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-
-        // Go backward if joystick faces directly backward
-        else if (Joy_x == 0 && Joy_y < 0)
-        {
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
-        }
-
-        // Turn right with positive power if the joystick is in the 1st quadrant
-        else if (Joy_x >= 0 && Joy_y >= 0)
+        // Turn right with positive power if the joystick is right and turnForward is true
+        if (Joy_x >= 0 && turnForward)
         {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(speed);
             larry.setPower(speed);
         }
-        // Turn left with positive power if the joystick is in the 2nd quadrant
-        else if (Joy_x <= 0 && Joy_y >= 0)
+        // Turn left with positive power
+        else if (Joy_x <= 0 && turnForward)
         {
             dylan.setPower(speed);
             jerry.setPower(speed);
             bob.setPower(0);
             larry.setPower(0);
         }
-        // Turn left with negative power if the joystick is in the 3rd quadrant
-        else if (Joy_x < 0 && Joy_y < 0)
+        // Turn left with negative power
+        else if (Joy_x < 0)
         {
             dylan.setPower(-speed);
             jerry.setPower(-speed);
             bob.setPower(0);
             larry.setPower(0);
         }
-        // Turn right with negative power if the joystick is in the 4th quadrant
-        else if (Joy_x > 0 && Joy_y < 0)
+        // Turn right with negative power
+        else if (Joy_x > 0)
         {
             dylan.setPower(0);
             jerry.setPower(0);
