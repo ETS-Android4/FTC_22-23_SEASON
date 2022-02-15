@@ -150,9 +150,9 @@ public class RedDepot extends LinearOpMode {
         Arm(ArmPositions.PICKUP,.8);
         //position arm
         //drive to thing and position arm
-        TurnPlacesNew("RIGHTFRONT",.8,1000);
+        TurnPlacesNew("RIGHTFRONT",.8,900);
         Arm(dropHeight, .8);
-        TurnPlacesNew("LEFTFRONT",.8,550);
+        TurnPlacesNew("LEFTFRONT",.8,650);
 
         //drop block in tower
         Claw(0);
@@ -162,10 +162,12 @@ public class RedDepot extends LinearOpMode {
         Arm(ArmPositions.PICKUP, .8);
         TurnPlacesNew("LEFTBACK",.8,1000);
         DrivePlaces("BACKWARD", .6, 1900);
-        //DrivePlaces("RIGHT", .6, 1000);
+        TurnPlacesNew("RIGHTBACK",.8,2000);
         //spin duck off
-        spin(4000);
-        DrivePlaces("FORWARD",.8,4000);
+        spin(5000);
+        DrivePlaces("FORWARD",.8,4500);
+        TurnPlacesNew("RIGHTFRONT",.8,700);
+        DrivePlaces("FORWARD",.8,3000);
         //
 
 
@@ -380,7 +382,7 @@ public class RedDepot extends LinearOpMode {
     }
 
     public void spin(int msecs){
-        sheral.setPower(-.1);
+        sheral.setPower(-.3);
         sleep(msecs);
         sheral.setPower(0);
     }
