@@ -291,51 +291,62 @@ public class RedDepot extends LinearOpMode {
 
     }
 
-    private void TurnPlacesNew (String direction, double speed, int mSecs)
+    private void TurnPlacesNew (String direction, double speed, int distance)
     {
 
-        dylan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        jerry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bob.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        larry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         direction = direction.toUpperCase();
 
         if (direction == "RIGHTFRONT")
         {
-            dylan.setPower(0);
-            jerry.setPower(0);
-            bob.setPower(speed);
-            larry.setPower(speed);
+            dylan.setTargetPosition(0);
+            jerry.setTargetPosition(0);
+            bob.setTargetPosition(distance);
+            larry.setTargetPosition(distance);
         }
         else if (direction == "RIGHTBACK")
         {
-            dylan.setPower(0);
-            jerry.setPower(0);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
+            dylan.setTargetPosition(0);
+            jerry.setTargetPosition(0);
+            bob.setTargetPosition(-distance);
+            larry.setTargetPosition(-distance);
         }
         else if (direction == "LEFTFRONT")
         {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(0);
-            larry.setPower(0);
+            dylan.setTargetPosition(distance);
+            jerry.setTargetPosition(distance);
+            bob.setTargetPosition(0);
+            larry.setTargetPosition(0);
         }
         else if (direction == "LEFTBACK")
         {
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
-            bob.setPower(0);
-            larry.setPower(0);
+            dylan.setTargetPosition(-distance);
+            jerry.setTargetPosition(-distance);
+            bob.setTargetPosition(0);
+            larry.setTargetPosition(0);
         }
 
-        sleep(mSecs);
+        while (opModeIsActive() && (dylan.isBusy()|| jerry.isBusy()|| bob.isBusy()|| larry.isBusy()))
+        {
+            telemetry.addData("encoder-fwd-left", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
+            telemetry.addData("encoder-fwd-right", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
+            telemetry.update();
+            idle();
+        }
 
-        dylan.setPower(0);
-        jerry.setPower(0);
-        bob.setPower(0);
-        larry.setPower(0);
+        dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bob.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        larry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        dylan.setPower(speed);
+        jerry.setPower(speed);
+        bob.setPower(speed);
+        larry.setPower(speed);
     }
 
     public void Arm(ArmPositions position, double power) {
