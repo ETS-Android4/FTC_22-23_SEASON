@@ -460,10 +460,10 @@ public class DriverControlled extends LinearOpMode {
     private void ToggleBulldozer(){
 
         if (this.gamepad1.x && bulldozer_flag) {
-            if(bulldozer.getPosition()==0){
-                bulldozer.setPosition(1);
+            if(bulldozer.getPosition()==.1){
+                bulldozer.setPosition(.8);
             }else{
-                bulldozer.setPosition(0);
+                bulldozer.setPosition(.1);
             }
             bulldozer_flag = false;
         }else if (!this.gamepad1.x && !bulldozer_flag){
