@@ -71,6 +71,7 @@ public class DriverControlled extends LinearOpMode {
         bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         sheral.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // Returning motors to regular runmode
         dylan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         jerry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -249,18 +250,18 @@ public class DriverControlled extends LinearOpMode {
         // Turn left with negative power
         else if (Joy_x < 0)
         {
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
-            bob.setPower(0);
-            larry.setPower(0);
-        }
-        // Turn right with negative power
-        else if (Joy_x > 0)
-        {
             dylan.setPower(0);
             jerry.setPower(0);
             bob.setPower(-speed);
             larry.setPower(-speed);
+        }
+        // Turn right with negative power
+        else if (Joy_x > 0)
+        {
+            dylan.setPower(-speed);
+            jerry.setPower(-speed);
+            bob.setPower(0);
+            larry.setPower(0);
         }
     }
 
