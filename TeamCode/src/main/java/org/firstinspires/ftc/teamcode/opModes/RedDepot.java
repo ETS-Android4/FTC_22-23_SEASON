@@ -330,14 +330,6 @@ public class RedDepot extends LinearOpMode {
             larry.setTargetPosition(0);
         }
 
-        while (opModeIsActive() && (dylan.isBusy()|| jerry.isBusy()|| bob.isBusy()|| larry.isBusy()))
-        {
-            telemetry.addData("encoder-fwd-left", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
-            telemetry.addData("encoder-fwd-right", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
-            telemetry.update();
-            idle();
-        }
-
         dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         bob.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -347,6 +339,19 @@ public class RedDepot extends LinearOpMode {
         jerry.setPower(speed);
         bob.setPower(speed);
         larry.setPower(speed);
+
+        while (opModeIsActive() && (dylan.isBusy()|| jerry.isBusy()|| bob.isBusy()|| larry.isBusy()))
+        {
+            telemetry.addData("encoder-fwd-left", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
+            telemetry.addData("encoder-fwd-right", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
+            telemetry.update();
+            idle();
+        }
+
+        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void Arm(ArmPositions position, double power) {
