@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Bot {
@@ -20,13 +21,15 @@ public class Bot {
     public Servo clawServo = null;
     public Servo cornerTech = null;
 
-    HardwareMap hwMap = null;
+    public IntegratingGyroscope gyro = null;
 
-    Bot(){
-        initializeHWMap(hwMap);
+    public Bot(){}
+
+    public Bot(HardwareMap deeznuts) {
+        initializeHWMap(deeznuts);
     }
 
-    protected void initializeHWMap (HardwareMap hwMap){
+    public void initializeHWMap (HardwareMap hwMap){
         //#################### HARDWARE MAPPING ####################\\
         frontLeftMotor = hwMap.get(DcMotorEx.class, "front_left_motor");
         frontRightMotor = hwMap.get(DcMotorEx.class, "front_right_motor");
@@ -38,6 +41,8 @@ public class Bot {
         wristServo = hwMap.get(Servo.class, "wrist_joint");
         clawServo = hwMap.get(Servo.class, "claw_servo");
         cornerTech = hwMap.get(Servo.class, "bulldozer");
+
+        //gyro = hwMap.get(IntegratingGyroscope.class, "IMU");
         //#################### HARDWARE MAPPING END ####################\\
 
         //#################### SETTING RUNMODES ####################\\
@@ -72,7 +77,7 @@ public class Bot {
 
     }
 
-    public static void main(String[] args)
+    public void main(String[] args)
     {
 
     }
