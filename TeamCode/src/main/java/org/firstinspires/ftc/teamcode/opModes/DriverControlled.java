@@ -29,7 +29,8 @@ public class DriverControlled extends LinearOpMode {
 
     private double clawCurrentPosition = 0.5; // Servos default to 0.5 as not moving
 
-    private double wrist_offset = 0; // Allows for manual control of wrist angle
+    double wrist_position = 0;
+    double wrist_offset = 0; // Allows for manual control of wrist angle
     boolean was_pressed = true; // Flag used for detecting when to hold the arm in position
     boolean bulldozer_flag = true; //Flag used for bulldozer to toggle
     boolean turnForward = true; //Flag to see if robot turns forward or backward
@@ -277,7 +278,8 @@ public class DriverControlled extends LinearOpMode {
         }
         else if (Joy_x > Math.cos(1.18) && Joy_x < Math.cos(0.393)  && Joy_y > 0)
         {
-            directionToTravel = "FORWARD/RIGHT"; // Forward/right direction
+            //directionToTravel = "FORWARD/RIGHT"; // Forward/right direction
+            directionToTravel = "FORWARD";
         }
         else if (Joy_x > 0 && Joy_y > Math.sin(-0.393) && Joy_y < Math.sin(0.393))
         {
@@ -285,7 +287,8 @@ public class DriverControlled extends LinearOpMode {
         }
         else if (Joy_x > Math.cos(1.18) && Joy_x < Math.cos(0.393)  && Joy_y < 0)
         {
-            directionToTravel = "BACKWARD/RIGHT"; // Backward/right direction
+            //directionToTravel = "BACKWARD/RIGHT"; // Backward/right direction
+            directionToTravel = "BACKWARD"; //
         }
         else if (Joy_x > Math.cos(1.96) && Joy_x < Math.cos(1.18) && Joy_y < 0)
         {
@@ -293,7 +296,8 @@ public class DriverControlled extends LinearOpMode {
         }
         else if (Joy_x < Math.cos(1.96) && Joy_x > Math.cos(2.75) && Joy_y < 0)
         {
-            directionToTravel = "BACKWARD/LEFT"; // Backward/left direction
+            //directionToTravel = "BACKWARD/LEFT"; // Backward/left direction
+            directionToTravel = "BACKWARD";
         }
         else if (Joy_x < 0 && Joy_y > Math.sin(-0.393) && Joy_y < Math.sin(0.393))
         {
@@ -301,7 +305,8 @@ public class DriverControlled extends LinearOpMode {
         }
         else if (Joy_x < Math.cos(1.96) && Joy_x > Math.cos(2.75) && Joy_y > 0)
         {
-            directionToTravel = "FORWARD/LEFT"; // Forward/left direction
+            //directionToTravel = "FORWARD/LEFT"; // Forward/left direction
+            directionToTravel = "FORWARD/RIGHT";
         }
         else
         {
@@ -369,22 +374,33 @@ public class DriverControlled extends LinearOpMode {
     private void MoveClaw()
     {
         // Incriment the desired position while holding the corresponding direction on the dpad
-        if (this.gamepad1.dpad_left) // Open
-        {
-            if (clawCurrentPosition > 1) {clawCurrentPosition = 1;}
-            else {clawCurrentPosition += 0.0075;}
+        if (this.gamepad1.dpad_left || this.gamepad1.dpad_right) {
+            if (this.gamepad1.dpad_left) // Open
+            {
+                if (clawCurrentPosition > 1) {
+                    clawCurrentPosition = 1;
+                } else {
+                    clawCurrentPosition += 0.1;
+                }
+            } else if (this.gamepad1.dpad_right) // Close
+            {
+                if (clawCurrentPosition < 0) {
+                    clawCurrentPosition = 0;
+                } else {
+                    clawCurrentPosition -= 0.1;
+                }
+            }
         }
-        else if (this.gamepad1.dpad_right) // Close
-        {
-            if (clawCurrentPosition < 0) {clawCurrentPosition = 0;}
-            else {clawCurrentPosition -= 0.0075;}
+        else {
+            wrist_position = barry.getCurrentPosition() / 1700.0; // Keeps the claw level when moving the arm
+
+            // Incriment the offset of the wrist (up or down) with the dpad (applies when leveling with the arm)
+            if (this.gamepad1.dpad_down && (wrist_position + wrist_offset <= 1)) {
+                wrist_offset += 0.005;
+            } else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {
+                wrist_offset -= 0.005;
+            }
         }
-
-        double wrist_position = barry.getCurrentPosition() / 1700.0; // Keeps the claw level when moving the arm
-
-        // Incriment the offset of the wrist (up or down) with the dpad (applies when leveling with the arm)
-        if (this.gamepad1.dpad_down && (wrist_position + wrist_offset <= 1)) {wrist_offset += 0.005;}
-        else if (this.gamepad1.dpad_up && (wrist_position + wrist_offset >= 0)) {wrist_offset -= 0.005;}
 
         // Move the wrist to allow for picking up cubes/balls (ignores offset to prevent damage)
         /*if (barry.getCurrentPosition() < 100) {garry.setPosition(0.4069);}

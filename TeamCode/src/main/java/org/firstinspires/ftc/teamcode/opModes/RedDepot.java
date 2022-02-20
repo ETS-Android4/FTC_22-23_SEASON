@@ -145,29 +145,39 @@ public class RedDepot extends LinearOpMode {
 
         //code goes here ------------------------ its hardcoded :[
         //set claw and pickup block
-        Claw(1);
-        sleep(1000);
-        Arm(ArmPositions.PICKUP,.8);
-        //position arm
-        //drive to thing and position arm
-        TurnPlacesNew("RIGHTFRONT",.8,900);
-        Arm(dropHeight, .8);
-        TurnPlacesNew("LEFTFRONT",.8,650);
-
-        //drop block in tower
         Claw(0);
         sleep(2000);
+        Arm(ArmPositions.START,.8);
+        //position arm
+        //drive to thing and position arm
+        DrivePlaces("RIGHT",.7,2000);
+        TurnPlacesNew("LEFTBACK",.4,800);
+        Arm(dropHeight, .8);
+        DrivePlaces("FORWARD",.8,1500);
+
+        //drop block in tower
+        Claw(1);
+        sleep(2000);
         //turn back towards spin and drive there
-        DrivePlaces("BACKWARD",.8,900);
-        Arm(ArmPositions.PICKUP, .8);
+        DrivePlaces("BACKWARD",.8,1000);
+        Arm(ArmPositions.START, .8);
+        DrivePlaces("FORWARD",.8,800);
         TurnPlacesNew("LEFTBACK",.8,1000);
-        DrivePlaces("BACKWARD", .6, 1900);
-        TurnPlacesNew("RIGHTBACK",.8,2000);
+        DrivePlaces("BACKWARD", .8, 1800);
+        TurnPlacesNew("RIGHTBACK",.6,2000);
+        sleep(500);
         //spin duck off
-        spin(5000);
-        DrivePlaces("FORWARD",.8,4500);
-        TurnPlacesNew("RIGHTFRONT",.8,700);
-        DrivePlaces("FORWARD",.8,3000);
+        bob.setPower(-.15);
+        larry.setPower(-.15);
+        spin(4000);
+        bob.setPower(0);
+        larry.setPower(0);
+        TurnPlacesNew("RIGHTFRONT",.8,200);
+        DrivePlaces("FORWARD",1,4500);
+        Arm(ArmPositions.START,.8);
+        DrivePlaces("Left",.8,2000);
+        DrivePlaces("FORWARD",1,2000);
+        Arm(ArmPositions.START,.8);
         //
 
 
@@ -294,10 +304,10 @@ public class RedDepot extends LinearOpMode {
     private void TurnPlacesNew (String direction, double speed, int mSecs)
     {
 
-        dylan.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        jerry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        bob.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        larry.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        dylan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        jerry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bob.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        larry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         direction = direction.toUpperCase();
 
@@ -343,7 +353,7 @@ public class RedDepot extends LinearOpMode {
             //set arm position and wrist position
             case START:
                 barry.setTargetPosition(0);
-                garry.setPosition(barry.getTargetPosition() / 1700.0);
+                garry.setPosition(0);
                 break;
             case PICKUP:
                 barry.setTargetPosition(10);
@@ -354,8 +364,8 @@ public class RedDepot extends LinearOpMode {
                 garry.setPosition(barry.getTargetPosition() / 1400.0);
                 break;
             case MIDDLE:
-                barry.setTargetPosition(750);
-                garry.setPosition(barry.getTargetPosition() / 1400.0);
+                barry.setTargetPosition(800);
+                garry.setPosition((barry.getTargetPosition() / 1400.0)-.1);
                 break;
             case TOP:
                 barry.setTargetPosition(1400);
@@ -382,7 +392,7 @@ public class RedDepot extends LinearOpMode {
     }
 
     public void spin(int msecs){
-        sheral.setPower(-.3);
+        sheral.setPower(-.4);
         sleep(msecs);
         sheral.setPower(0);
     }
