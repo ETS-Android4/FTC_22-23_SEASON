@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
 public class Skills extends Bot{
 
     public void Move(){
@@ -24,7 +22,7 @@ public class Skills extends Bot{
     }
 
     public void Spin (float power){
-        spinMotor.setPower(power);
+
     }
 
     public void Dozer (){

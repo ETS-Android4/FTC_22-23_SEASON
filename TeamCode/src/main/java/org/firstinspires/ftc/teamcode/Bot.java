@@ -42,6 +42,8 @@ public class Bot {
         clawServo = hwMap.get(Servo.class, "claw_servo");
         cornerTech = hwMap.get(Servo.class, "bulldozer");
 
+
+
         //gyro = hwMap.get(IntegratingGyroscope.class, "IMU");
         //#################### HARDWARE MAPPING END ####################\\
 
@@ -77,8 +79,8 @@ public class Bot {
 
     }
 
-    public void main(String[] args)
+    public void main(String args)
     {
-
+        spinMotor.getDeviceName();
     }
 }

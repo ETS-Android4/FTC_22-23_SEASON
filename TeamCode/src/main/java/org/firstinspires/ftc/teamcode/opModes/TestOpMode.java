@@ -13,8 +13,8 @@ public class TestOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Bot robit = new Bot(hardwareMap);
         Skills skis = new Skills();
+        skis.initializeHWMap(hardwareMap);
 
         waitForStart();
 
