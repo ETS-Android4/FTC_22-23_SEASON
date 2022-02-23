@@ -19,7 +19,6 @@ public class Bot {
     // Servos
     public Servo wristServo = null;
     public Servo clawServo = null;
-    public Servo cornerTech = null;
 
     public IntegratingGyroscope gyro = null;
 
@@ -34,11 +33,9 @@ public class Bot {
 
         wristServo = hwMap.get(Servo.class, "wrist_joint");
         clawServo = hwMap.get(Servo.class, "claw_servo");
-        cornerTech = hwMap.get(Servo.class, "bulldozer");
 
+        gyro = hwMap.get(IntegratingGyroscope.class, "imu");
 
-
-        //gyro = hwMap.get(IntegratingGyroscope.class, "IMU");
         //#################### HARDWARE MAPPING END ####################\\
 
         //#################### SETTING RUNMODES ####################\\
@@ -58,8 +55,8 @@ public class Bot {
         //#################### SETTING RUNMODES END ####################\\
 
         //#################### SETTING DIRECTIONS ####################\\
-        frontLeftMotor.setDirection((DcMotorSimple.Direction.REVERSE));
-        frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection((DcMotorSimple.Direction.FORWARD));
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //#################### SETTING DIRECTIONS END ####################\\
