@@ -23,12 +23,6 @@ public class Bot {
 
     public IntegratingGyroscope gyro = null;
 
-    public Bot(){}
-
-    public Bot(HardwareMap deeznuts) {
-        initializeHWMap(deeznuts);
-    }
-
     public void initializeHWMap (HardwareMap hwMap){
         //#################### HARDWARE MAPPING ####################\\
         frontLeftMotor = hwMap.get(DcMotorEx.class, "front_left_motor");
@@ -54,6 +48,13 @@ public class Bot {
         backRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         armMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         spinMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontLeftMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        spinMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         //#################### SETTING RUNMODES END ####################\\
 
         //#################### SETTING DIRECTIONS ####################\\
@@ -81,6 +82,6 @@ public class Bot {
 
     public void main(String args)
     {
-        spinMotor.getDeviceName();
+
     }
 }

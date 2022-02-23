@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 public class Skills extends Bot{
+
+    public Skills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
 
     public void Move(){
         frontLeftMotor.setPower(0);

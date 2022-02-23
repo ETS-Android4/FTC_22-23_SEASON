@@ -13,14 +13,13 @@ public class TestOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Skills skis = new Skills();
-        skis.initializeHWMap(hardwareMap);
+        Skills skills = new Skills(hardwareMap);
 
         waitForStart();
 
         while (opModeIsActive())
         {
-            skis.Spin(1);
+            skills.spinMotor.setPower(1);
         }
     }
 }
