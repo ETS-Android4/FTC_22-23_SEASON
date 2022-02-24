@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -8,9 +9,8 @@ public class Skills extends Bot{
 
     public Skills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
 
-    public void Move(float axial, float lateral, float yaw){
+    public void Move(double axial, double lateral, double yaw, double speed_limiter){
         double max;
-        double speed_limiter = 0.5;
 
         // Forward returns negative value
         axial = -axial;
@@ -57,16 +57,29 @@ public class Skills extends Bot{
         backRightMotor.setPower(backRightPower);
     }
 
-    public void Arm(){
+    public void MoveArm(int targetHeight, double power)
+    {
+        if (targetHeight > 1700) {
+            targetHeight = 1700;
+        }
 
+        armMotor.setTargetPosition(targetHeight);
+        clawServo.setPosition(armMotor.getTargetPosition()/1700);
+
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(power);
     }
 
-    public void Claw(){
+    public void Claw(double claw_position) {
+        clawServo.setPosition(claw_position);
+    }
 
+    public void ChangeWristOffset(double wrist_position) {
+        wristServo.setPosition(wristServo.getPosition() + wrist_position);
     }
 
     public void Spin (float power){
-
+        spinMotor.setPower(power);
     }
 
     public void Dozer (){
