@@ -109,9 +109,9 @@ public class RedDepot extends LinearOpMode {
         barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         dylan.setDirection((DcMotorSimple.Direction.REVERSE));
-        jerry.setDirection(DcMotorSimple.Direction.REVERSE);
+        jerry.setDirection(DcMotorSimple.Direction.FORWARD);
         bob.setDirection(DcMotorSimple.Direction.FORWARD);
-        larry.setDirection(DcMotorSimple.Direction.FORWARD);
+        larry.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
@@ -174,11 +174,6 @@ public class RedDepot extends LinearOpMode {
 
         imu.startAccelerationIntegration(new Position(), new Velocity(), 500);
 
-        //code goes here ------------------------ its hardcoded :[
-        TurnPlacesNew(83,.3);
-        sleep(1000);
-        TurnPlacesNew(1,.3);
-
 //set claw and pickup block
         Claw(0);
         sleep(2000);
@@ -186,7 +181,7 @@ public class RedDepot extends LinearOpMode {
         //position arm
         //drive to thing and position arm
         DrivePlaces("RIGHT",.7,2000);
-//        TurnPlacesNew("LEFTBACK",.4,800);
+        TurnPlacesNew(0,.4);
         Arm(dropHeight, .8);
         DrivePlaces("FORWARD",.8,1500);
 
@@ -196,10 +191,8 @@ public class RedDepot extends LinearOpMode {
         //turn back towards spin and drive there
         DrivePlaces("BACKWARD",.8,1000);
         Arm(ArmPositions.START, .8);
-        DrivePlaces("FORWARD",.8,800);
-//        TurnPlacesNew("LEFTBACK",.8,1000);
+        TurnPlacesNew(80,.8);
         DrivePlaces("BACKWARD", .8, 1800);
-//        TurnPlacesNew("RIGHTBACK",.6,2000);
         sleep(500);
         //spin duck off
         bob.setPower(-.15);
@@ -207,13 +200,8 @@ public class RedDepot extends LinearOpMode {
         spin(4000);
         bob.setPower(0);
         larry.setPower(0);
-//        TurnPlacesNew("RIGHTFRONT",.8,200);
-        DrivePlaces("FORWARD",1,4500);
-        Arm(ArmPositions.START,.8);
-        DrivePlaces("Left",.8,2000);
-        DrivePlaces("FORWARD",1,2000);
-        Arm(ArmPositions.START,.8);
-        //
+        TurnPlacesNew(-80,.8);
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -362,14 +350,14 @@ public class RedDepot extends LinearOpMode {
 
             if (amountToTurn <= 0) {
                 dylan.setPower(-speed);
-                jerry.setPower(speed);
+                jerry.setPower(-speed);
                 bob.setPower(speed);
-                larry.setPower(-speed);
+                larry.setPower(speed);
             } else if (amountToTurn > 0) {
                 dylan.setPower(speed);
-                jerry.setPower(-speed);
+                jerry.setPower(speed);
                 bob.setPower(-speed);
-                larry.setPower(speed);
+                larry.setPower(-speed);
             }
         }
 

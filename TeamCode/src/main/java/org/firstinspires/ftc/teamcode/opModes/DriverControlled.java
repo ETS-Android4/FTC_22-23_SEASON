@@ -142,7 +142,7 @@ public class DriverControlled extends LinearOpMode {
             if (JoyIsActive("left")) {
                 TurnPlacesNew(leftJoy_x, calculatedSpeed("left"));
             } else if (JoyIsActive("right")) {
-                DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), .8*calculatedSpeed("right"));
+                DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), .9*calculatedSpeed("right"));
             } else {
                 dylan.setPower(0);
                 jerry.setPower(0);
