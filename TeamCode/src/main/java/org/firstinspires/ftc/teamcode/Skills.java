@@ -2,12 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 public class Skills extends Bot{
 
     public Skills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
 
     public void Move(float axial, float lateral, float yaw){
         double max;
+        double speed_limiter = 0.5;
+
+        // Forward returns negative value
+        axial = -axial;
 
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -29,6 +35,11 @@ public class Skills extends Bot{
             backRightPower  /= max;
         }
 
+        frontLeftPower  *= speed_limiter;
+        frontRightPower *= speed_limiter;
+        backLeftPower   *= speed_limiter;
+        backRightPower  *= speed_limiter;
+
         // This is test code:
         //
         // Uncomment the following code to test your motor directions.
@@ -38,13 +49,6 @@ public class Skills extends Bot{
         //   2) Then make sure they run in the correct direction by modifying the
         //      the setDirection() calls above.
         // Once the correct motors move in the correct direction re-comment this code.
-
-            /*
-            frontLeftPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            backLeftPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            frontRightPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            backRightPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
 
         // Send calculated power to wheels
         frontLeftMotor.setPower(frontLeftPower);
