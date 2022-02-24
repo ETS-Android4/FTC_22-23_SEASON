@@ -90,9 +90,9 @@ public class DriverControlled extends LinearOpMode {
         telemetry.update();
 
         // Setting motor direction internally so i dont have to do -(-(-(-speed)))
-        dylan.setDirection((DcMotorSimple.Direction.FORWARD));
+        dylan.setDirection((DcMotorSimple.Direction.REVERSE));
         jerry.setDirection(DcMotorSimple.Direction.FORWARD);
-        bob.setDirection(DcMotorSimple.Direction.REVERSE);
+        bob.setDirection(DcMotorSimple.Direction.FORWARD);
         larry.setDirection(DcMotorSimple.Direction.REVERSE);
         sheral.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -140,7 +140,7 @@ public class DriverControlled extends LinearOpMode {
 
             // Logic to give determine which stick is in use (gives priority to the left stick when both are in use)
             if (JoyIsActive("left")) {
-                TurnPlacesNew(leftJoy_x, leftJoy_y, calculatedSpeed("left"));
+                TurnPlacesNew(leftJoy_x, calculatedSpeed("left"));
             } else if (JoyIsActive("right")) {
                 DrivePlaces(calculatedDirection(rightJoy_x, rightJoy_y), .8*calculatedSpeed("right"));
             } else {
@@ -224,9 +224,9 @@ public class DriverControlled extends LinearOpMode {
                 break;
             case "RIGHT":
                 // Drive right
-                dylan.setPower(speed);
+                dylan.setPower(-speed);
                 jerry.setPower(-speed);
-                bob.setPower(-speed);
+                bob.setPower(speed);
                 larry.setPower(speed);
                 break;
             case "BACKWARD/RIGHT":
@@ -252,9 +252,9 @@ public class DriverControlled extends LinearOpMode {
                 break;
             case "LEFT":
                 // Drive left
-                dylan.setPower(-speed);
+                dylan.setPower(speed);
                 jerry.setPower(speed);
-                bob.setPower(speed);
+                bob.setPower(-speed);
                 larry.setPower(-speed);
                 break;
             case "FORWARD/LEFT":
@@ -268,39 +268,18 @@ public class DriverControlled extends LinearOpMode {
     }
 
     // Turns by leaving one side off and turning the other side on
-    private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
+    private void TurnPlacesNew (double Joy_x, double speed)
     {
-        // Turn right with positive power if the joystick is right and turnForward is true
-        if (Joy_x >= 0 && turnForward)
-        {
-            dylan.setPower(0);
-            jerry.setPower(0);
-            bob.setPower(speed);
-            larry.setPower(speed);
-        }
-        // Turn left with positive power
-        else if (Joy_x <= 0 && turnForward)
-        {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(0);
-            larry.setPower(0);
-        }
-        // Turn left with negative power
-        else if (Joy_x < 0)
-        {
-            dylan.setPower(0);
-            jerry.setPower(0);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
-        }
-        // Turn right with negative power
-        else if (Joy_x > 0)
-        {
+        if( Joy_x > 0){
             dylan.setPower(-speed);
             jerry.setPower(-speed);
-            bob.setPower(0);
-            larry.setPower(0);
+            bob.setPower(speed);
+            larry.setPower(speed);
+        }else if (Joy_x<0){
+            dylan.setPower(speed);
+            jerry.setPower(speed);
+            bob.setPower(-speed);
+            larry.setPower(-speed);
         }
     }
 

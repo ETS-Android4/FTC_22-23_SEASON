@@ -175,7 +175,7 @@ public class RedDepot extends LinearOpMode {
         imu.startAccelerationIntegration(new Position(), new Velocity(), 500);
 
         //code goes here ------------------------ its hardcoded :[
-        TurnPlacesNew(85,.3);
+        TurnPlacesNew(83,.3);
         sleep(1000);
         TurnPlacesNew(1,.3);
 
