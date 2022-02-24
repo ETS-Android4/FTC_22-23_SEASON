@@ -1,24 +1,34 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import static java.lang.Math.abs;
+        import static java.lang.Math.abs;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
+        import com.qualcomm.hardware.bosch.BNO055IMU;
+        import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+        import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+        import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+        import com.qualcomm.robotcore.hardware.DcMotor;
+        import com.qualcomm.robotcore.hardware.DcMotorEx;
+        import com.qualcomm.robotcore.hardware.DcMotorSimple;
+        import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+        import com.qualcomm.robotcore.hardware.Servo;
+        import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.teamcode.res.ArmPositions;
-import org.firstinspires.ftc.teamcode.res.ClawPositions;
+        import org.firstinspires.ftc.robotcore.external.ClassFactory;
+        import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+        import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+        import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+        import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+        import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+        import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+        import org.firstinspires.ftc.robotcore.external.navigation.Position;
+        import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+        import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+        import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+        import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+        import org.firstinspires.ftc.teamcode.res.ArmPositions;
+        import org.firstinspires.ftc.teamcode.res.ClawPositions;
 
-import java.util.List;
+        import java.util.List;
 
 @Autonomous(name="RedDepot", group="opModes")
 
@@ -52,6 +62,14 @@ public class RedDepot extends LinearOpMode {
     private float elementPosition;
     private ArmPositions dropHeight;
 
+    //imu garbage
+    private BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    //end imu garbage
+
+
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -66,7 +84,18 @@ public class RedDepot extends LinearOpMode {
         sherry = hardwareMap.get(Servo.class, "claw_servo");
         sheral = hardwareMap.get(DcMotorEx.class, "spin_motor");
 
+        //IMU stuff
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+        //End IMU stuff
 
 
         // Wait for the game to begin
@@ -79,10 +108,10 @@ public class RedDepot extends LinearOpMode {
         larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         barry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        dylan.setDirection((DcMotorSimple.Direction.FORWARD));
-        jerry.setDirection(DcMotorSimple.Direction.FORWARD);
-        bob.setDirection(DcMotorSimple.Direction.REVERSE);
-        larry.setDirection(DcMotorSimple.Direction.REVERSE);
+        dylan.setDirection((DcMotorSimple.Direction.REVERSE));
+        jerry.setDirection(DcMotorSimple.Direction.REVERSE);
+        bob.setDirection(DcMotorSimple.Direction.FORWARD);
+        larry.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
@@ -143,15 +172,21 @@ public class RedDepot extends LinearOpMode {
             dropHeight = ArmPositions.PICKUP;
         }
 
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 500);
+
         //code goes here ------------------------ its hardcoded :[
-        //set claw and pickup block
+        TurnPlacesNew(83,.3);
+        sleep(1000);
+        TurnPlacesNew(1,.3);
+
+//set claw and pickup block
         Claw(0);
         sleep(2000);
         Arm(ArmPositions.START,.8);
         //position arm
         //drive to thing and position arm
         DrivePlaces("RIGHT",.7,2000);
-        TurnPlacesNew("LEFTBACK",.4,800);
+//        TurnPlacesNew("LEFTBACK",.4,800);
         Arm(dropHeight, .8);
         DrivePlaces("FORWARD",.8,1500);
 
@@ -162,9 +197,9 @@ public class RedDepot extends LinearOpMode {
         DrivePlaces("BACKWARD",.8,1000);
         Arm(ArmPositions.START, .8);
         DrivePlaces("FORWARD",.8,800);
-        TurnPlacesNew("LEFTBACK",.8,1000);
+//        TurnPlacesNew("LEFTBACK",.8,1000);
         DrivePlaces("BACKWARD", .8, 1800);
-        TurnPlacesNew("RIGHTBACK",.6,2000);
+//        TurnPlacesNew("RIGHTBACK",.6,2000);
         sleep(500);
         //spin duck off
         bob.setPower(-.15);
@@ -172,7 +207,7 @@ public class RedDepot extends LinearOpMode {
         spin(4000);
         bob.setPower(0);
         larry.setPower(0);
-        TurnPlacesNew("RIGHTFRONT",.8,200);
+//        TurnPlacesNew("RIGHTFRONT",.8,200);
         DrivePlaces("FORWARD",1,4500);
         Arm(ArmPositions.START,.8);
         DrivePlaces("Left",.8,2000);
@@ -180,17 +215,14 @@ public class RedDepot extends LinearOpMode {
         Arm(ArmPositions.START,.8);
         //
 
-
-
-
-        //code goes here ------------------------
-
-
-
-
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            telemetry.addData("encoder value", 4);
+
+            //IMU crap
+            gravity  = imu.getGravity();
+            //End IMU crap
+
+            telemetry.addData("yaw", angles.firstAngle);
             telemetry.update();
         }
     }
@@ -301,67 +333,50 @@ public class RedDepot extends LinearOpMode {
 
     }
 
-    private void TurnPlacesNew (String direction, double speed, int distance)
+    private void TurnPlacesNew (float cwingyTargetDegrees, double speed)
     {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        float amountToTurn;
 
         dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        direction = direction.toUpperCase();
+        dylan.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        jerry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bob.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        larry.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        if (direction == "RIGHTFRONT")
+        amountToTurn = cwingyTargetDegrees - angles.firstAngle;
+        if(amountToTurn>180)
+            amountToTurn-=360;
+        else if(amountToTurn<-180)
+            amountToTurn+=360;
+        while(!(angles.firstAngle <= cwingyTargetDegrees +1 && angles.firstAngle >= cwingyTargetDegrees -1))
         {
-            dylan.setTargetPosition(0);
-            jerry.setTargetPosition(0);
-            bob.setTargetPosition(distance);
-            larry.setTargetPosition(distance);
-        }
-        else if (direction == "RIGHTBACK")
-        {
-            dylan.setTargetPosition(0);
-            jerry.setTargetPosition(0);
-            bob.setTargetPosition(-distance);
-            larry.setTargetPosition(-distance);
-        }
-        else if (direction == "LEFTFRONT")
-        {
-            dylan.setTargetPosition(distance);
-            jerry.setTargetPosition(distance);
-            bob.setTargetPosition(0);
-            larry.setTargetPosition(0);
-        }
-        else if (direction == "LEFTBACK")
-        {
-            dylan.setTargetPosition(-distance);
-            jerry.setTargetPosition(-distance);
-            bob.setTargetPosition(0);
-            larry.setTargetPosition(0);
-        }
-
-        dylan.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        jerry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bob.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        larry.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        dylan.setPower(speed);
-        jerry.setPower(speed);
-        bob.setPower(speed);
-        larry.setPower(speed);
-
-        while (opModeIsActive() && (dylan.isBusy()|| jerry.isBusy()|| bob.isBusy()|| larry.isBusy()))
-        {
-            telemetry.addData("encoder-fwd-left", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
-            telemetry.addData("encoder-fwd-right", dylan.getCurrentPosition() + "  busy=" + dylan.isBusy());
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            telemetry.addData("yaw", angles.firstAngle);
+            telemetry.addData("target", cwingyTargetDegrees);
             telemetry.update();
-            idle();
+
+            if (amountToTurn <= 0) {
+                dylan.setPower(-speed);
+                jerry.setPower(speed);
+                bob.setPower(speed);
+                larry.setPower(-speed);
+            } else if (amountToTurn > 0) {
+                dylan.setPower(speed);
+                jerry.setPower(-speed);
+                bob.setPower(-speed);
+                larry.setPower(speed);
+            }
         }
 
-        dylan.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        jerry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bob.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        larry.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dylan.setPower(0);
+        jerry.setPower(0);
+        bob.setPower(0);
+        larry.setPower(0);
     }
 
     public void Arm(ArmPositions position, double power) {
@@ -453,4 +468,6 @@ public class RedDepot extends LinearOpMode {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
     }
 }
+
+
 
