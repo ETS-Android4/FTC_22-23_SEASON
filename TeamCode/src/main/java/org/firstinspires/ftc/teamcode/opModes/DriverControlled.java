@@ -35,6 +35,8 @@ public class DriverControlled extends LinearOpMode {
     boolean bulldozer_flag = true; //Flag used for bulldozer to toggle
     boolean turnForward = true; //Flag to see if robot turns forward or backward
     boolean anotherFlag = true; //second flag for toggling
+    
+    double speed_limiter = 0.4;
 
     /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
@@ -59,7 +61,7 @@ public class DriverControlled extends LinearOpMode {
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
 
-        // Setting motor direction internally so i dont have to do -(-(-(-speed)))
+        // Setting motor direction internally so i dont have to do -(-(-(-speed*speed_limiter)))
         dylan.setDirection((DcMotorSimple.Direction.FORWARD));
         jerry.setDirection(DcMotorSimple.Direction.FORWARD);
         bob.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -133,7 +135,12 @@ public class DriverControlled extends LinearOpMode {
 
             //
             if (this.gamepad1.b && anotherFlag){
-                turnForward = !turnForward;
+                if (speed_limiter == 0.4) {
+                    speed_limiter = 1;
+                }
+                else {
+                    speed_limiter = 0.4;
+                }
                 anotherFlag = false;
             }else if (!this.gamepad1.b && !anotherFlag) {
                 anotherFlag = true;
@@ -172,58 +179,58 @@ public class DriverControlled extends LinearOpMode {
                 break;
             case "FORWARD":
                 // Drive forward
-                dylan.setPower(speed);
-                jerry.setPower(speed);
-                bob.setPower(speed);
-                larry.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "FORWARD/RIGHT":
                 // Drive forward/right
-                dylan.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
                 jerry.setPower(0);
                 bob.setPower(0);
-                larry.setPower(speed);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "RIGHT":
                 // Drive right
-                dylan.setPower(speed);
-                jerry.setPower(-speed);
-                bob.setPower(-speed);
-                larry.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "BACKWARD/RIGHT":
                 // Drive backward/right
                 dylan.setPower(0);
-                jerry.setPower(-speed);
-                bob.setPower(-speed);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
                 larry.setPower(0);
                 break;
             case "BACKWARD":
                 // Drive backward
-                dylan.setPower(-speed);
-                jerry.setPower(-speed);
-                bob.setPower(-speed);
-                larry.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "BACKWARD/LEFT":
                 // Drive backward/left
-                dylan.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
                 jerry.setPower(0);
                 bob.setPower(0);
-                larry.setPower(-speed);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "LEFT":
                 // Drive left
-                dylan.setPower(-speed);
-                jerry.setPower(speed);
-                bob.setPower(speed);
-                larry.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "FORWARD/LEFT":
                 // Drive forward/left
                 dylan.setPower(0);
-                jerry.setPower(speed);
-                bob.setPower(speed);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
                 larry.setPower(0);
                 break;
         }
@@ -237,14 +244,14 @@ public class DriverControlled extends LinearOpMode {
         {
             dylan.setPower(0);
             jerry.setPower(0);
-            bob.setPower(speed);
-            larry.setPower(speed);
+            bob.setPower(speed*speed_limiter);
+            larry.setPower(speed*speed_limiter);
         }
         // Turn left with positive power
         else if (Joy_x <= 0 && turnForward)
         {
-            dylan.setPower(speed);
-            jerry.setPower(speed);
+            dylan.setPower(speed*speed_limiter);
+            jerry.setPower(speed*speed_limiter);
             bob.setPower(0);
             larry.setPower(0);
         }
@@ -253,14 +260,14 @@ public class DriverControlled extends LinearOpMode {
         {
             dylan.setPower(0);
             jerry.setPower(0);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
+            bob.setPower(-speed*speed_limiter);
+            larry.setPower(-speed*speed_limiter);
         }
         // Turn right with negative power
         else if (Joy_x > 0)
         {
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
+            dylan.setPower(-speed*speed_limiter);
+            jerry.setPower(-speed*speed_limiter);
             bob.setPower(0);
             larry.setPower(0);
         }
