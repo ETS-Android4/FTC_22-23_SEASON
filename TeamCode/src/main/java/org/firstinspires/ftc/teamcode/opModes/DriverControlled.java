@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,12 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 /*#################### END IMPORTS ####################*/
 
 @TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
@@ -54,6 +48,8 @@ public class DriverControlled extends LinearOpMode {
     boolean turnForward = true; //Flag to see if robot turns forward or backward
     boolean anotherFlag = true; //second flag for toggling
 
+    double speed_limiter = 0.4;
+
     /*private static final String VUFORIA_KEY =
             "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
     */
@@ -73,18 +69,6 @@ public class DriverControlled extends LinearOpMode {
         sherry = hardwareMap.get(Servo.class, "claw_servo");
         bulldozer = hardwareMap.get(Servo.class, "bulldozer");
 
-        //IMU stuff
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
-        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-        //End IMU stuff
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -114,17 +98,11 @@ public class DriverControlled extends LinearOpMode {
         waitForStart(); // Activated upon pressing play (after pressing initalize)
 
         /*#################### END INITALIZATION STAGE ####################*/
-        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         /*#################### RUNNING STAGE ####################*/
 
         // Main while loop (this runs until stopped from the drivers station)
         while (opModeIsActive()) {
-
-            //IMU crap
-            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            gravity  = imu.getGravity();
-            //End IMU crap
 
             // Placeholders to make the math easier
             double rx = this.gamepad1.right_stick_x;
@@ -169,7 +147,12 @@ public class DriverControlled extends LinearOpMode {
 
             //
             if (this.gamepad1.b && anotherFlag){
-                turnForward = !turnForward;
+                if (speed_limiter == 0.4) {
+                    speed_limiter = 1;
+                }
+                else {
+                    speed_limiter = 0.4;
+                }
                 anotherFlag = false;
             }else if (!this.gamepad1.b && !anotherFlag) {
                 anotherFlag = true;
@@ -184,8 +167,6 @@ public class DriverControlled extends LinearOpMode {
 
             telemetry.addData("Arm Position: ", barry.getCurrentPosition());
             telemetry.addData("Wrist Position: ", garry.getPosition());
-
-            telemetry.addData("yeetus", angles.firstAngle);
 
             telemetry.update();
             /*#################### TROUBLESHOOTING ####################*/
@@ -210,58 +191,58 @@ public class DriverControlled extends LinearOpMode {
                 break;
             case "FORWARD":
                 // Drive forward
-                dylan.setPower(speed);
-                jerry.setPower(speed);
-                bob.setPower(speed);
-                larry.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "FORWARD/RIGHT":
                 // Drive forward/right
-                dylan.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
                 jerry.setPower(0);
                 bob.setPower(0);
-                larry.setPower(speed);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "RIGHT":
                 // Drive right
-                dylan.setPower(-speed);
-                jerry.setPower(-speed);
-                bob.setPower(speed);
-                larry.setPower(speed);
+                dylan.setPower(speed*speed_limiter);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
+                larry.setPower(speed*speed_limiter);
                 break;
             case "BACKWARD/RIGHT":
                 // Drive backward/right
                 dylan.setPower(0);
-                jerry.setPower(-speed);
-                bob.setPower(-speed);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
                 larry.setPower(0);
                 break;
             case "BACKWARD":
                 // Drive backward
-                dylan.setPower(-speed);
-                jerry.setPower(-speed);
-                bob.setPower(-speed);
-                larry.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
+                jerry.setPower(-speed*speed_limiter);
+                bob.setPower(-speed*speed_limiter);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "BACKWARD/LEFT":
                 // Drive backward/left
-                dylan.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
                 jerry.setPower(0);
                 bob.setPower(0);
-                larry.setPower(-speed);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "LEFT":
                 // Drive left
-                dylan.setPower(speed);
-                jerry.setPower(speed);
-                bob.setPower(-speed);
-                larry.setPower(-speed);
+                dylan.setPower(-speed*speed_limiter);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
+                larry.setPower(-speed*speed_limiter);
                 break;
             case "FORWARD/LEFT":
                 // Drive forward/left
                 dylan.setPower(0);
-                jerry.setPower(speed);
-                bob.setPower(speed);
+                jerry.setPower(speed*speed_limiter);
+                bob.setPower(speed*speed_limiter);
                 larry.setPower(0);
                 break;
         }
@@ -271,15 +252,15 @@ public class DriverControlled extends LinearOpMode {
     private void TurnPlacesNew (double Joy_x, double speed)
     {
         if( Joy_x > 0){
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
-            bob.setPower(speed);
-            larry.setPower(speed);
+            dylan.setPower(-speed*speed_limiter);
+            jerry.setPower(-speed*speed_limiter);
+            bob.setPower(speed*speed_limiter);
+            larry.setPower(speed*speed_limiter);
         }else if (Joy_x<0){
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
+            dylan.setPower(speed*speed_limiter);
+            jerry.setPower(speed*speed_limiter);
+            bob.setPower(-speed*speed_limiter);
+            larry.setPower(-speed*speed_limiter);
         }
     }
 
@@ -394,15 +375,15 @@ public class DriverControlled extends LinearOpMode {
         if (this.gamepad1.dpad_left || this.gamepad1.dpad_right) {
             if (this.gamepad1.dpad_left) // Open
             {
-                if (clawCurrentPosition > 1) {
-                    clawCurrentPosition = 1;
+                if (clawCurrentPosition > 0.75) {
+                    clawCurrentPosition = 0.75;
                 } else {
                     clawCurrentPosition += 0.05;
                 }
             } else if (this.gamepad1.dpad_right) // Close
             {
-                if (clawCurrentPosition < 0) {
-                    clawCurrentPosition = 0;
+                if (clawCurrentPosition < 0.1) {
+                    clawCurrentPosition = 0.1;
                 } else {
                     clawCurrentPosition -= 0.05;
                 }
