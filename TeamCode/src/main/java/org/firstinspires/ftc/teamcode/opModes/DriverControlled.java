@@ -1,12 +1,24 @@
 /*#################### IMPORTS ####################*/
 package org.firstinspires.ftc.teamcode.opModes;
 
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 /*#################### END IMPORTS ####################*/
 
 @TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
@@ -26,6 +38,12 @@ public class DriverControlled extends LinearOpMode {
     private Servo garry;
     private Servo sherry;
     private Servo bulldozer;
+
+    //imu garbage
+    private BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    //end imu garbage
 
     private double clawCurrentPosition = 0.5; // Servos default to 0.5 as not moving
 
@@ -55,6 +73,18 @@ public class DriverControlled extends LinearOpMode {
         sherry = hardwareMap.get(Servo.class, "claw_servo");
         bulldozer = hardwareMap.get(Servo.class, "bulldozer");
 
+        //IMU stuff
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+        //End IMU stuff
 
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
@@ -84,11 +114,17 @@ public class DriverControlled extends LinearOpMode {
         waitForStart(); // Activated upon pressing play (after pressing initalize)
 
         /*#################### END INITALIZATION STAGE ####################*/
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         /*#################### RUNNING STAGE ####################*/
 
         // Main while loop (this runs until stopped from the drivers station)
         while (opModeIsActive()) {
+
+            //IMU crap
+            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            gravity  = imu.getGravity();
+            //End IMU crap
 
             // Placeholders to make the math easier
             double rx = this.gamepad1.right_stick_x;
@@ -148,6 +184,8 @@ public class DriverControlled extends LinearOpMode {
 
             telemetry.addData("Arm Position: ", barry.getCurrentPosition());
             telemetry.addData("Wrist Position: ", garry.getPosition());
+
+            telemetry.addData("yeetus", angles.firstAngle);
 
             telemetry.update();
             /*#################### TROUBLESHOOTING ####################*/
@@ -380,14 +418,14 @@ public class DriverControlled extends LinearOpMode {
                 if (clawCurrentPosition > 1) {
                     clawCurrentPosition = 1;
                 } else {
-                    clawCurrentPosition += 0.1;
+                    clawCurrentPosition += 0.05;
                 }
             } else if (this.gamepad1.dpad_right) // Close
             {
                 if (clawCurrentPosition < 0) {
                     clawCurrentPosition = 0;
                 } else {
-                    clawCurrentPosition -= 0.1;
+                    clawCurrentPosition -= 0.05;
                 }
             }
         }
