@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,12 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 /*#################### END IMPORTS ####################*/
 
 @TeleOp(name = "GudCode", group = "opModes") //Name and type declaration for the drivers station
@@ -255,18 +249,18 @@ public class DriverControlled extends LinearOpMode {
     }
 
     // Turns by leaving one side off and turning the other side on
-    private void TurnPlacesNew (double Joy_x, double Joy_y, double speed)
+    private void TurnPlacesNew (double Joy_x, double speed)
     {
         if( Joy_x > 0){
-            dylan.setPower(-speed);
-            jerry.setPower(-speed);
-            bob.setPower(speed);
-            larry.setPower(speed);
+            dylan.setPower(-speed*speed_limiter);
+            jerry.setPower(-speed*speed_limiter);
+            bob.setPower(speed*speed_limiter);
+            larry.setPower(speed*speed_limiter);
         }else if (Joy_x<0){
-            dylan.setPower(speed);
-            jerry.setPower(speed);
-            bob.setPower(-speed);
-            larry.setPower(-speed);
+            dylan.setPower(speed*speed_limiter);
+            jerry.setPower(speed*speed_limiter);
+            bob.setPower(-speed*speed_limiter);
+            larry.setPower(-speed*speed_limiter);
         }
     }
 
@@ -381,15 +375,15 @@ public class DriverControlled extends LinearOpMode {
         if (this.gamepad1.dpad_left || this.gamepad1.dpad_right) {
             if (this.gamepad1.dpad_left) // Open
             {
-                if (clawCurrentPosition > 1) {
-                    clawCurrentPosition = 1;
+                if (clawCurrentPosition > 0.75) {
+                    clawCurrentPosition = 0.75;
                 } else {
                     clawCurrentPosition += 0.05;
                 }
             } else if (this.gamepad1.dpad_right) // Close
             {
-                if (clawCurrentPosition < 0) {
-                    clawCurrentPosition = 0;
+                if (clawCurrentPosition < 0.1) {
+                    clawCurrentPosition = 0.1;
                 } else {
                     clawCurrentPosition -= 0.05;
                 }
