@@ -175,6 +175,11 @@ public class DriverControlled extends LinearOpMode {
     /*#################### END RUNNING STAGE ####################*/
 
     /*#################### FUNCTIONS ####################*/
+    private void DrivePlacesNew (double axial, double lateral, double yaw, double speed)
+    {
+
+    }
+
     // Drives in the provided direction at the provided power
     private void DrivePlaces (String directionInput, double speed)
     {
