@@ -117,16 +117,7 @@ public class DriverControlled extends LinearOpMode {
             double leftJoy_y = ly / Math.sqrt(((Math.pow(lx, 2)) + (Math.pow(ly, 2))));
 
             // Logic to give determine which stick is in use (gives priority to the left stick when both are in use)
-            if (JoyIsActive("left")) {
-                TurnPlacesNew(leftJoy_x, calculatedSpeed("left"));
-            } else if (JoyIsActive("right")) {
-                DrivePlacesNew(ly, lx, rx, 0.5);
-            } else {
-                dylan.setPower(0);
-                jerry.setPower(0);
-                bob.setPower(0);
-                larry.setPower(0);
-            }
+            DrivePlacesNew(ly, lx, rx, 0.5);
 
             if (this.gamepad1.y) {ReInit();} // Y resets the encoders in all chassis motors
 
@@ -214,8 +205,8 @@ public class DriverControlled extends LinearOpMode {
         // Once the correct motors move in the correct direction re-comment this code.
 
         // Send calculated power to wheels
-        dylan.setPower(frontLeftPower);
-        bob.setPower(frontRightPower);
+        bob.setPower(frontLeftPower);
+        dylan.setPower(frontRightPower);
         larry.setPower(backLeftPower);
         jerry.setPower(backRightPower);
     }

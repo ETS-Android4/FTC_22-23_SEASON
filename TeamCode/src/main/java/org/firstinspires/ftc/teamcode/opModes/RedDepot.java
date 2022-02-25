@@ -184,7 +184,6 @@ public class RedDepot extends LinearOpMode {
         TurnPlacesNew(3,.4);
         Arm(dropHeight, .8);
         DrivePlaces("FORWARD",.5,650);
-
         //drop block in tower
         Claw(0);
         sleep(2000);
