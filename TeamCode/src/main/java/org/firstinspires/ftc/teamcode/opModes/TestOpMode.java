@@ -27,22 +27,22 @@ public class TestOpMode extends LinearOpMode {
             skills.Move(this.gamepad1.left_stick_y, this.gamepad1.left_stick_x, this.gamepad1.right_stick_x, 0.5);
 
             if (this.gamepad1.right_trigger > 0) {
-                skills.MoveArm(1700, this.gamepad1.right_trigger);
+                skills.ChangeArmPosition(2, this.gamepad1.right_trigger);
                 arm_flag = true;
             } else if (this.gamepad1.left_trigger > 0) {
-                skills.MoveArm(0, this.gamepad1.right_trigger);
+                skills.ChangeArmPosition(-2, this.gamepad1.right_trigger);
                 arm_flag = true;
             } else if (arm_flag) {
-                skills.MoveArm(skills.armMotor.getTargetPosition(), 0.25);
+                skills.ChangeArmPosition(skills.armMotor.getTargetPosition(), 0.25);
                 arm_flag = false;
             }
 
             if (this.gamepad1.dpad_left || this.gamepad1.dpad_right) {
                 if (this.gamepad1.dpad_left) {
-                    skills.Claw(1);
+                    skills.ChangeClawPosition(1);
                 }
                 else if (this.gamepad1.dpad_right) {
-                    skills.Claw(0);
+                    skills.ChangeClawPosition(0);
                 }
             }
             else {

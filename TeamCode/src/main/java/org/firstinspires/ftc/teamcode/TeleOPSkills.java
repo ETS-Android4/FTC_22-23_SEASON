@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 public class TeleOPSkills extends Bot{
 
@@ -57,42 +58,28 @@ public class TeleOPSkills extends Bot{
         backRightMotor.setPower(backRightPower);
     }
 
-    public void MoveArm(int targetHeight, double power)
+    public void ChangeArmPosition(int positionChange, double power)
     {
-        if (targetHeight > 1700) {
-            targetHeight = 1700;
-        }
-
-        armMotor.setTargetPosition(targetHeight);
-        clawServo.setPosition(armMotor.getTargetPosition()/1700);
+        armMotor.setTargetPosition(Math.min(armMotor.getCurrentPosition() + positionChange, 1700));
 
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(power);
     }
 
-    public void Claw(double claw_position) {
-        clawServo.setPosition(claw_position);
+    public void ChangeClawPosition(double positionChange)
+    {
+        if (clawServo.getPosition() + positionChange > 1) {clawServo.setPosition(1);}
+        else if (clawServo.getPosition() + positionChange < 0) {clawServo.setPosition(0);}
+        else {clawServo.setPosition(clawServo.getPosition() + positionChange);}
     }
 
-    public void ChangeWristOffset(double wrist_position) {
-        wristServo.setPosition(wristServo.getPosition() + wrist_position);
+    public void ChangeWristOffset(double positionChange) {
+        if (wristServo.getPosition() + positionChange > 1) {wristServo.setPosition(1);}
+        else if (wristServo.getPosition() + positionChange < 0) {wristServo.setPosition(0);}
+        else {wristServo.setPosition(wristServo.getPosition() + positionChange);}
     }
 
     public void Spin (float power){
         spinMotor.setPower(power);
-    }
-
-    public void Dozer (){
-
-    }
-
-    public float CalculateSpeed (String joy){
-
-        return 1;
-    }
-
-    public boolean JoyIsActive (String joyToCheck){
-
-        return true;
     }
 }
