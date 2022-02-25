@@ -26,7 +26,6 @@ package org.firstinspires.ftc.teamcode.opModes;
         import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
         import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
         import org.firstinspires.ftc.teamcode.res.ArmPositions;
-        import org.firstinspires.ftc.teamcode.res.ClawPositions;
 
         import java.util.List;
 
@@ -175,9 +174,8 @@ public class RedDepot extends LinearOpMode {
         imu.startAccelerationIntegration(new Position(), new Velocity(), 500);
 
 //set claw and pickup block
-        Claw(0);
+        Claw(1);
         sleep(2000);
-        Claw(0);
         Arm(ArmPositions.START,.8);
         //position arm
         //drive to thing and position arm
@@ -187,7 +185,7 @@ public class RedDepot extends LinearOpMode {
         DrivePlaces("FORWARD",.5,650);
 
         //drop block in tower
-        Claw(1);
+        Claw(0);
         sleep(2000);
         //turn back towards spin and drive there
         TurnPlacesNew(100,.8);
