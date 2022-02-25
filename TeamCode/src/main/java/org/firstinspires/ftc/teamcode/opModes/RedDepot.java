@@ -177,21 +177,21 @@ public class RedDepot extends LinearOpMode {
 //set claw and pickup block
         Claw(0);
         sleep(2000);
+        Claw(0);
         Arm(ArmPositions.START,.8);
         //position arm
         //drive to thing and position arm
-        DrivePlaces("RIGHT",.7,2000);
-        TurnPlacesNew(0,.4);
+        DrivePlaces("RIGHT",.4,680);
+        TurnPlacesNew(3,.4);
         Arm(dropHeight, .8);
-        DrivePlaces("FORWARD",.8,1500);
+        DrivePlaces("FORWARD",.5,650);
 
         //drop block in tower
         Claw(1);
         sleep(2000);
         //turn back towards spin and drive there
-        DrivePlaces("BACKWARD",.8,1000);
+        TurnPlacesNew(100,.8);
         Arm(ArmPositions.START, .8);
-        TurnPlacesNew(80,.8);
         DrivePlaces("BACKWARD", .8, 1800);
         sleep(500);
         //spin duck off
@@ -240,26 +240,12 @@ public class RedDepot extends LinearOpMode {
                 bob.setTargetPosition(distance);
                 larry.setTargetPosition(distance);
                 break;
-            case "FORWARD/RIGHT":
-                // Drive forward/right
-                dylan.setTargetPosition(distance);
-                jerry.setTargetPosition(0);
-                bob.setTargetPosition(0);
-                larry.setTargetPosition(distance);
-                break;
             case "RIGHT":
                 // Drive right
-                dylan.setTargetPosition(distance);
-                jerry.setTargetPosition(-distance);
-                bob.setTargetPosition(-distance);
-                larry.setTargetPosition(distance);
-                break;
-            case "BACKWARD/RIGHT":
-                // Drive backward/right
-                dylan.setTargetPosition(0);
-                jerry.setTargetPosition(-distance);
-                bob.setTargetPosition(-distance);
-                larry.setTargetPosition(0);
+                dylan.setTargetPosition(-distance);
+                jerry.setTargetPosition(distance);
+                bob.setTargetPosition(distance);
+                larry.setTargetPosition(-distance);
                 break;
             case "BACKWARD":
                 // Drive backward
@@ -277,10 +263,10 @@ public class RedDepot extends LinearOpMode {
                 break;
             case "LEFT":
                 // Drive left
-                dylan.setTargetPosition(-distance);
-                jerry.setTargetPosition(distance);
-                bob.setTargetPosition(distance);
-                larry.setTargetPosition(-distance);
+                dylan.setTargetPosition(distance);
+                jerry.setTargetPosition(-distance);
+                bob.setTargetPosition(-distance);
+                larry.setTargetPosition(distance);
                 break;
             case "FORWARD/LEFT":
                 // Drive forward/left

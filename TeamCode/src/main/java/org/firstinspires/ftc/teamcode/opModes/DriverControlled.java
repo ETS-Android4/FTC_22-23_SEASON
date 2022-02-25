@@ -196,26 +196,12 @@ public class DriverControlled extends LinearOpMode {
                 bob.setPower(speed*speed_limiter);
                 larry.setPower(speed*speed_limiter);
                 break;
-            case "FORWARD/RIGHT":
-                // Drive forward/right
-                dylan.setPower(speed*speed_limiter);
-                jerry.setPower(0);
-                bob.setPower(0);
-                larry.setPower(speed*speed_limiter);
-                break;
             case "RIGHT":
                 // Drive right
                 dylan.setPower(speed*speed_limiter);
                 jerry.setPower(-speed*speed_limiter);
                 bob.setPower(-speed*speed_limiter);
                 larry.setPower(speed*speed_limiter);
-                break;
-            case "BACKWARD/RIGHT":
-                // Drive backward/right
-                dylan.setPower(0);
-                jerry.setPower(-speed*speed_limiter);
-                bob.setPower(-speed*speed_limiter);
-                larry.setPower(0);
                 break;
             case "BACKWARD":
                 // Drive backward
@@ -224,26 +210,12 @@ public class DriverControlled extends LinearOpMode {
                 bob.setPower(-speed*speed_limiter);
                 larry.setPower(-speed*speed_limiter);
                 break;
-            case "BACKWARD/LEFT":
-                // Drive backward/left
-                dylan.setPower(-speed*speed_limiter);
-                jerry.setPower(0);
-                bob.setPower(0);
-                larry.setPower(-speed*speed_limiter);
-                break;
             case "LEFT":
                 // Drive left
                 dylan.setPower(-speed*speed_limiter);
                 jerry.setPower(speed*speed_limiter);
                 bob.setPower(speed*speed_limiter);
                 larry.setPower(-speed*speed_limiter);
-                break;
-            case "FORWARD/LEFT":
-                // Drive forward/left
-                dylan.setPower(0);
-                jerry.setPower(speed*speed_limiter);
-                bob.setPower(speed*speed_limiter);
-                larry.setPower(0);
                 break;
         }
     }
