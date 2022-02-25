@@ -41,7 +41,7 @@ public class TestOpMode extends LinearOpMode {
                 if (this.gamepad1.dpad_left) {
                     skills.ChangeClawPosition(1);
                 }
-                else if (this.gamepad1.dpad_right) {
+                else {
                     skills.ChangeClawPosition(0);
                 }
             }
