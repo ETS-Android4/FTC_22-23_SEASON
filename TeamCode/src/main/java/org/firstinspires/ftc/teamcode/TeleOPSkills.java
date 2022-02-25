@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-public class Skills extends Bot{
+public class TeleOPSkills extends Bot{
 
-    public Skills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
+    public TeleOPSkills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
 
     public void Move(double axial, double lateral, double yaw, double speed_limiter){
         double max;

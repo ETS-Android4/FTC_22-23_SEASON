@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.Skills;
-import org.firstinspires.ftc.teamcode.Bot;
+import org.firstinspires.ftc.teamcode.TeleOPSkills;
 
 @TeleOp(name = "FirstOPMode", group = "OpModes")
 public class TestOpMode extends LinearOpMode {
@@ -23,7 +18,7 @@ public class TestOpMode extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Skills skills = new Skills(hardwareMap);
+        TeleOPSkills skills = new TeleOPSkills(hardwareMap);
 
         waitForStart();
 
@@ -50,7 +45,7 @@ public class TestOpMode extends LinearOpMode {
                     skills.Claw(0);
                 }
             }
-            else if (this.gamepad1.dpad_up || this.gamepad1.dpad_down) {
+            else {
                 if (this.gamepad1.dpad_up) {
                     skills.ChangeWristOffset(0.05);
                 }
@@ -65,7 +60,7 @@ public class TestOpMode extends LinearOpMode {
                     skills.Spin(0);
                 }
                 else if (skills.spinMotor.getPower() == 0) {
-                    skills.Spin(0);
+                    skills.Spin(1);
                 }
                 spinner_flag = false;
             }
