@@ -1,15 +1,37 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BotDebugger extends Bot{
 
-    public double PrintPowerDraw () {
-        double power_draw;
+    private HardwareMap mappings = null;
 
-        power_draw = ((frontLeftMotor.getCurrent(CurrentUnit.MILLIAMPS) + frontRightMotor.getCurrent(CurrentUnit.MILLIAMPS)
-                + backLeftMotor.getCurrent(CurrentUnit.MILLIAMPS) + backRightMotor.getCurrent(CurrentUnit.MILLIAMPS)) / 4);
+    public BotDebugger(HardwareMap hwMap)
+    {
+        super.initializeHWMap(hwMap);
+        mappings = hwMap;
+    }
 
-        return power_draw;
+    public CurrentUnit PrintPowerDraw (ArrayList<HardwareDevice> devices)
+    {
+        for (HardwareDevice d : devices)
+        {
+
+        }
+
+        CurrentUnit total_power_draw = CurrentUnit.AMPS;
+
+        return total_power_draw;
+    }
+
+    public void main(String args)
+    {
+
     }
 }

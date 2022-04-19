@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
-public class TeleOPSkills extends Bot{
+import java.lang.annotation.Target;
+import java.util.ArrayList;
 
-    public TeleOPSkills(HardwareMap hwMap) {super.initializeHWMap(hwMap);}
+public class InputSkills extends Bot{
 
     public void Move(double axial, double lateral, double yaw, double speed_limiter){
         double max;
@@ -58,10 +60,18 @@ public class TeleOPSkills extends Bot{
         backRightMotor.setPower(backRightPower);
     }
 
+    public void TurnToAngle(double target, double speed)
+    {
+
+    }
+
     public void ChangeArmPosition(int positionChange, double power)
     {
-        armMotor.setTargetPosition(Math.min(armMotor.getCurrentPosition() + positionChange, 1700));
+        int target = armMotor.getCurrentPosition() + positionChange;
 
+        // Checking if the requested movement is within the arms range of motion
+
+        armMotor.setTargetPosition(target);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armMotor.setPower(power);
     }
@@ -79,7 +89,5 @@ public class TeleOPSkills extends Bot{
         else {wristServo.setPosition(wristServo.getPosition() + positionChange);}
     }
 
-    public void Spin (float power){
-        spinMotor.setPower(power);
-    }
+    public void Spin (float power){spinMotor.setPower(power);}
 }

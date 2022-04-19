@@ -1,29 +1,51 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 public class Bot {
 
-    // Motors
-    public DcMotorEx frontLeftMotor = null;
-    public DcMotorEx frontRightMotor = null;
-    public DcMotorEx backLeftMotor = null;
-    public DcMotorEx backRightMotor = null;
-    public DcMotorEx armMotor = null;
-    public DcMotorEx spinMotor = null;
-    // Servos
-    public Servo wristServo = null;
-    public Servo clawServo = null;
+        // Motors
+        public static DcMotorEx frontLeftMotor = null;
+        public static DcMotorEx frontRightMotor = null;
+        public static DcMotorEx backLeftMotor = null;
+        public static DcMotorEx backRightMotor = null;
+        public static DcMotorEx armMotor = null;
+        public static DcMotorEx spinMotor = null;
 
-    public IntegratingGyroscope gyro = null;
+        // Servos
+        public static Servo wristServo = null;
+        public static Servo clawServo = null;
 
-    public void initializeHWMap (HardwareMap hwMap){
+        // Navigation sensors
+        public static WebcamName webcam = null;
+        public static BNO055IMU imu = null;
+        public static Orientation orientation = null;
+        public static Acceleration acceleration = null;
+
+        // Camera parameters
+        public static TFObjectDetector tfod;
+        public static VuforiaLocalizer vuforia;
+        private static final String TFOD_MODEL_ASSET = "BlooBoi_Proto.tflite";
+        private static final String[] LABELS = {"Blooboi"};
+        private static final String VUFORIA_KEY = "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
+
+    public static void initializeHWMap (HardwareMap hwMap){
+
         //#################### HARDWARE MAPPING ####################\\
         frontLeftMotor = hwMap.get(DcMotorEx.class, "front_left_motor");
         frontRightMotor = hwMap.get(DcMotorEx.class, "front_right_motor");
@@ -35,8 +57,45 @@ public class Bot {
         wristServo = hwMap.get(Servo.class, "wrist_joint");
         clawServo = hwMap.get(Servo.class, "claw_servo");
 
-        gyro = hwMap.get(IntegratingGyroscope.class, "imu");
+        imu = hwMap.get(BNO055IMU.class, "imu");
+        webcam = hwMap.get(WebcamName.class, "Webcam 1");
         //#################### HARDWARE MAPPING END ####################\\
+
+        //#################### IMU CALIBRATION ####################\\
+        BNO055IMU.Parameters IMUparameters = new BNO055IMU.Parameters();
+
+        IMUparameters.angleUnit            = BNO055IMU.AngleUnit.DEGREES;
+        IMUparameters.accelUnit            = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        IMUparameters.calibrationDataFile  = "BNO055IMUCalibration.json";
+        IMUparameters.loggingEnabled       = true;
+        IMUparameters.loggingTag           = "IMU";
+        IMUparameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        imu.initialize(IMUparameters);
+        imu.startAccelerationIntegration(new Position(), new Velocity(), 500);
+        //#################### IMU CALIBRATION END ####################\\
+
+        //#################### VUFORIA INITIALIZATION ####################\\
+        VuforiaLocalizer.Parameters Vparameters = new VuforiaLocalizer.Parameters();
+
+        Vparameters.vuforiaLicenseKey = VUFORIA_KEY;
+        Vparameters.cameraName = webcam;
+
+        vuforia = ClassFactory.getInstance().createVuforia(Vparameters);
+        //#################### VUFORIA INITIALIZATION ENDS ####################\\
+
+        //#################### TFOD INITIALIZATION ####################\\
+        int tfodMonitorViewId = hwMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hwMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 320;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.setZoom(1, 16.0 / 9.0);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+        tfod.activate();
+        //#################### TFOD INITIALIZATION ####################\\
 
         //#################### SETTING RUNMODES ####################\\
         frontLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -57,8 +116,8 @@ public class Bot {
         //#################### SETTING DIRECTIONS ####################\\
         frontLeftMotor.setDirection((DcMotorSimple.Direction.FORWARD));
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //#################### SETTING DIRECTIONS END ####################\\
 
         //#################### HALT BEHAVIOR ####################\\
@@ -74,11 +133,5 @@ public class Bot {
         backLeftMotor.setPower(0);
         backRightMotor.setPower(0);
         //#################### STOP DURING INITIALIZATION END ####################\\
-
-    }
-
-    public void main(String args)
-    {
-
     }
 }
