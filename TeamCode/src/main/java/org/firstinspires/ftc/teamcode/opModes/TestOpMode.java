@@ -30,7 +30,7 @@ public class TestOpMode extends LinearOpMode {
         while (opModeIsActive())
         {
             // Omni-capable driving and tank turning
-            skills.Move(this.gamepad1.left_stick_y, this.gamepad1.left_stick_x, this.gamepad1.right_stick_x, 0.5);
+            skills.Move(this.gamepad1.left_stick_y, this.gamepad1.left_stick_x, this.gamepad1.right_stick_x);
 
             // Logic to govern the direction of the movement for the arm (up, down, and halt respectively)
             // Adjusting trigger pressure slows the movement. Lowering positionChange does the same to a degree
@@ -62,18 +62,14 @@ public class TestOpMode extends LinearOpMode {
             // Flag logic for toggling the duck-spinner (probably an easier way to do this)
             if (this.gamepad1.a && spinner_flag)
             {
-                if (skills.spinMotor.getPower() == 1) {
-                    skills.Spin(0);
-                }
-                else if (skills.spinMotor.getPower() == 0) {
-                    skills.Spin(1);
-                }
+                skills.ToggleSpin(1);
                 spinner_flag = false;
             }
-            else if (!this.gamepad1.a && !spinner_flag)
-            {
-                spinner_flag = true;
-            }
+            else if (!this.gamepad1.a && !spinner_flag) {spinner_flag = true;}
+
+            // Enable CHAOS MODE
+            if (this.gamepad1.y) {skills.SetMaxSpeed(1, 1, 1);}
+            else {skills.SetMaxSpeed(0.5, 0.5, 0.5);}
 
             // Debugging print-outs go here, update happens last
             telemetry.addData("Status", "Run Time: " + runtime.toString());

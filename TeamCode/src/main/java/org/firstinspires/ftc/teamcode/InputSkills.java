@@ -1,18 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-
-import java.lang.annotation.Target;
-import java.util.ArrayList;
 
 public class InputSkills extends Bot{
 
-    public void Move(double axial, double lateral, double yaw, double speed_limiter){
+    public void Move(double axial, double lateral, double yaw)
+    {
         double max;
 
         // Forward returns negative value
@@ -38,20 +31,10 @@ public class InputSkills extends Bot{
             backRightPower  /= max;
         }
 
-        frontLeftPower  *= speed_limiter;
-        frontRightPower *= speed_limiter;
-        backLeftPower   *= speed_limiter;
-        backRightPower  *= speed_limiter;
-
-        // This is test code:
-        //
-        // Uncomment the following code to test your motor directions.
-        // Each button should make the corresponding motor run FORWARD.
-        //   1) First get all the motors to take to correct positions on the robot
-        //      by adjusting your Robot Configuration if necessary.
-        //   2) Then make sure they run in the correct direction by modifying the
-        //      the setDirection() calls above.
-        // Once the correct motors move in the correct direction re-comment this code.
+        frontLeftPower  *= Bot.chassis_speed_cap;
+        frontRightPower *= Bot.chassis_speed_cap;
+        backLeftPower   *= Bot.chassis_speed_cap;
+        backRightPower  *= Bot.chassis_speed_cap;
 
         // Send calculated power to wheels
         frontLeftMotor.setPower(frontLeftPower);
@@ -60,16 +43,19 @@ public class InputSkills extends Bot{
         backRightMotor.setPower(backRightPower);
     }
 
-    public void TurnToAngle(double target, double speed)
-    {
-
-    }
-
     public void ChangeArmPosition(int positionChange, double power)
     {
         int target = armMotor.getCurrentPosition() + positionChange;
 
         // Checking if the requested movement is within the arms range of motion
+        if (target > 1700 || target < 0)
+        {
+            armMotor.setTargetPosition(armMotor.getCurrentPosition());
+            armMotor.setPower(arm_speed_cap);
+            return;
+        }
+
+        power = power * Bot.arm_speed_cap;
 
         armMotor.setTargetPosition(target);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -83,11 +69,23 @@ public class InputSkills extends Bot{
         else {clawServo.setPosition(clawServo.getPosition() + positionChange);}
     }
 
-    public void ChangeWristOffset(double positionChange) {
+    public void ChangeWristOffset(double positionChange)
+    {
         if (wristServo.getPosition() + positionChange > 1) {wristServo.setPosition(1);}
         else if (wristServo.getPosition() + positionChange < 0) {wristServo.setPosition(0);}
         else {wristServo.setPosition(wristServo.getPosition() + positionChange);}
     }
 
-    public void Spin (float power){spinMotor.setPower(power);}
+    public void ToggleSpin (float power)
+    {
+        if (spinMotor.getPower() != 0) {spinMotor.setPower(0);}
+        else {spinMotor.setPower(power * spinner_speed_cap);}
+    }
+
+    public void SetMaxSpeed (double chassis_speed, double arm_speed, double spinner_speed)
+    {
+        Bot.chassis_speed_cap = chassis_speed;
+        Bot.arm_speed_cap = arm_speed;
+        Bot.spinner_speed_cap = spinner_speed;
+    }
 }

@@ -2,9 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.hardware.AnalogOutput;
+import com.qualcomm.robotcore.hardware.AnalogOutputController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -16,6 +20,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 public class Bot {
 
@@ -31,6 +37,11 @@ public class Bot {
         public static Servo wristServo = null;
         public static Servo clawServo = null;
 
+        // Safety features
+        public static double chassis_speed_cap = 0.5;
+        public static double arm_speed_cap = 0.5;
+        public static double spinner_speed_cap = 0.5;
+
         // Navigation sensors
         public static WebcamName webcam = null;
         public static BNO055IMU imu = null;
@@ -43,6 +54,9 @@ public class Bot {
         private static final String TFOD_MODEL_ASSET = "BlooBoi_Proto.tflite";
         private static final String[] LABELS = {"Blooboi"};
         private static final String VUFORIA_KEY = "AbskhHb/////AAABmb8nKWBiYUJ9oEFmxQL9H2kC6M9FzPa1acXUaS/H5wRkeNbpNVBJjDfcrhlTV2SIGc/lxBOtq9X7doE2acyeVOPg4sP69PQQmDVQH5h62IwL8x7BS/udilLU7MyX3KEoaFN+eR1o4FKBspsYrIXA/Oth+TUyrXuAcc6bKSSblICUpDXCeUbj17KrhghgcgxU6wzl84lCDoz6IJ9egO+CG4HlsBhC/YAo0zzi82/BIUMjBLgFMc63fc6eGTGiqjCfrQPtRWHdj2sXHtsjZr9/BpLDvFwFK36vSYkRoSZCZ38Fr+g3nkdep25+oEsmx30IkTYvQVMFZKpK3WWMYUWjWgEzOSvhh+3BOg+3UoxBJSNk";
+
+        // Analog ports
+        public static AnalogOutputController analogController1;
 
     public static void initializeHWMap (HardwareMap hwMap){
 
@@ -59,6 +73,8 @@ public class Bot {
 
         imu = hwMap.get(BNO055IMU.class, "imu");
         webcam = hwMap.get(WebcamName.class, "Webcam 1");
+
+        analogController1 = hwMap.get(AnalogOutputController.class, "analog_port_1");
         //#################### HARDWARE MAPPING END ####################\\
 
         //#################### IMU CALIBRATION ####################\\
@@ -94,8 +110,7 @@ public class Bot {
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.setZoom(1, 16.0 / 9.0);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-        tfod.activate();
-        //#################### TFOD INITIALIZATION ####################\\
+        //#################### TFOD INITIALIZATION END ####################\\
 
         //#################### SETTING RUNMODES ####################\\
         frontLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -134,4 +149,5 @@ public class Bot {
         backRightMotor.setPower(0);
         //#################### STOP DURING INITIALIZATION END ####################\\
     }
+
 }

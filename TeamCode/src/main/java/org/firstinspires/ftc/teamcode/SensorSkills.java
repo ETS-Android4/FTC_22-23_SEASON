@@ -10,15 +10,12 @@ import java.util.List;
 
 public class SensorSkills extends Bot {
 
-    private static final String TFOD_MODEL_ASSET = "BlooBoi_Proto.tflite";
-    private static final String[] LABELS = {"BlooBoi"};
-
     private static final double middlePixel = 322.5;
-    public double target = 0;
-    public double power;
 
     // Debug Variables
-    private int failed_attempts;
+    public double target;
+    public double power;
+    public int failed_attempts;
 
     public void UpdateIMUData (AxesReference frameOfReference, AxesOrder order)
     {
